@@ -30,8 +30,7 @@ coverage/
 # Local tooling (cloned third-party repo used for PDF conversion)
 markitdown/
 
-# Local working files — not part of the submission
+# Local working files, not part of the submission
 Alkira UI Developer Test.pdf
 TaskInstructions.md
-DECISIONS.md
 auth-system-design.html
