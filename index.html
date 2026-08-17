@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta
+      name="description"
+      content="Authentication demo: login, multi-factor verification, and role-based access control."
+    />
+    <title>Alkira Console</title>
+    <script>
+      /*
+        Applies the stored theme before first paint.
+
+        This has to be inline and synchronous. If the theme were applied from
+        React after hydration, every dark-mode user would see one frame of the
+        light palette first, which is the flash-of-wrong-theme problem. Reading
+        localStorage and stamping the attribute here costs under a millisecond
+        and happens before the body renders.
+
+        No stored value means no attribute, which leaves prefers-color-scheme in
+        charge. That is the intended default.
+      */
+      (function () {
+        try {
+          var stored = localStorage.getItem("alkira.theme");
+          if (stored === "light" || stored === "dark") {
+            document.documentElement.setAttribute("data-theme", stored);
+          }
+        } catch (_) {
+          /* Private browsing can throw on storage access. The OS preference is
+             a perfectly good fallback, so there is nothing to handle. */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

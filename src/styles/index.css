@@ -1,0 +1,352 @@
+/* ---------------------------------------------------------------------------
+   Design tokens.
+
+   Every colour, radius, and type size in the application resolves through this
+   file. Feature code never writes a hex value, a px radius, or a raw font size.
+
+   Structure, and why it is in this order:
+
+     1. :root defines the complete LIGHT palette as plain CSS variables.
+     2. Dark redefines ONLY those variables, in two places: a
+        prefers-colour-scheme block for people who never touch the toggle, and a
+        [data-theme="dark"] block so an explicit choice wins over the OS.
+     3. @theme inline maps Tailwind utility names onto those variables.
+
+   The "inline" keyword matters. Without it Tailwind copies the resolved value
+   into the utility at build time, which freezes the light palette and makes the
+   theme toggle a no-op. With it, bg-paper compiles to var(--paper) and follows
+   whatever the cascade currently says.
+
+   The palette is matte: flat pigment on uncoated paper. No gradients, no glow,
+   no glossy shadows. Depth comes from hairline borders and small tonal steps
+   between surfaces, the way ink sits on a printed page.
+--------------------------------------------------------------------------- */
+
+@import "tailwindcss";
+
+/* Cormorant carries the identity: page titles, the auth headline, large
+   numerals. IBM Plex Sans does the work: labels, buttons, table body. Plex Mono
+   handles anything tabular or machine-shaped, and shares a skeleton with Plex
+   Sans so the two never look like strangers.
+
+   Self-hosted through @fontsource rather than a CDN link, so there is no
+   third-party request, no layout shift from a late-arriving face, and no silent
+   fallback if the network is unavailable. Only the weights actually used are
+   imported. */
+@import "@fontsource/cormorant/400.css";
+@import "@fontsource/cormorant/500.css";
+@import "@fontsource/cormorant/600.css";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
+
+/* The dark variant covers all three states a viewer can be in: explicitly dark,
+   explicitly light, and the un-stamped default where only the OS has an
+   opinion. The :not([data-theme="light"]) guard is what lets an explicit light
+   choice beat a dark operating system.
+
+   In practice this variant is rarely needed, because the tokens below already
+   flip. It exists for the handful of cases where dark needs a different border
+   weight or opacity rather than a different colour. */
+@custom-variant dark {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Light palette
+   -------------------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces, lightest to deepest. Three steps is enough to build any layout
+     without shadows: page, raised, inset. */
+  --paper: #ededE8;
+  --surface: #f7f7f3;
+  --surface-sunk: #e3e3dd;
+
+  /* Text. Near-black with a cool cast rather than pure #000, which reads as
+     harsh against warm paper. */
+  --ink: #22252a;
+  --ink-muted: #575b62;
+  --gray: #74787f;
+
+  /* Hairlines. The main structural device, standing in for shadows. */
+  --rule: #d5d5ce;
+  --rule-strong: #b9b9b1;
+
+  /* Royal blue. The single accent: actions, links, focus, selection.
+     Desaturated just far enough to sit flat on paper instead of glowing. */
+  --royal: #2c4a9a;
+  --royal-hover: #223c80;
+  --royal-soft: #dee3f0;
+  --royal-ink: #ffffff;
+
+  /* Status. Muted deliberately so nothing in the table reads as neon. */
+  --ok: #4a6e52;
+  --ok-soft: #dce4dc;
+  --warn: #8a6a2e;
+  --warn-soft: #ebe3d2;
+  --danger: #93463c;
+  --danger-soft: #eddbd7;
+
+  --focus: #2c4a9a;
+}
+
+/* --------------------------------------------------------------------------
+   Dark palette
+
+   Not an inversion. Royal blue is lifted well above its light value, because
+   #2c4a9a on a dark ground is nearly unreadable, and the greys are re-picked
+   rather than flipped so the tonal steps stay even. Still matte: no glow, no
+   saturation spike.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --paper: #15171a;
+    --surface: #1c1f23;
+    --surface-sunk: #0f1113;
+
+    --ink: #e7e5df;
+    --ink-muted: #a3a6ac;
+    --gray: #8b8f96;
+
+    --rule: #2c3036;
+    --rule-strong: #3e434b;
+
+    --royal: #7c97db;
+    --royal-hover: #93aae6;
+    --royal-soft: #202638;
+    --royal-ink: #12151c;
+
+    --ok: #7fa487;
+    --ok-soft: #1b2620;
+    --warn: #c0a063;
+    --warn-soft: #2a2418;
+    --danger: #c4796d;
+    --danger-soft: #2b1d1a;
+
+    --focus: #7c97db;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --paper: #15171a;
+  --surface: #1c1f23;
+  --surface-sunk: #0f1113;
+
+  --ink: #e7e5df;
+  --ink-muted: #a3a6ac;
+  --gray: #8b8f96;
+
+  --rule: #2c3036;
+  --rule-strong: #3e434b;
+
+  --royal: #7c97db;
+  --royal-hover: #93aae6;
+  --royal-soft: #202638;
+  --royal-ink: #12151c;
+
+  --ok: #7fa487;
+  --ok-soft: #1b2620;
+  --warn: #c0a063;
+  --warn-soft: #2a2418;
+  --danger: #c4796d;
+  --danger-soft: #2b1d1a;
+
+  --focus: #7c97db;
+}
+
+/* --------------------------------------------------------------------------
+   Tailwind theme mapping
+   -------------------------------------------------------------------------- */
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-sunk: var(--surface-sunk);
+
+  --color-ink: var(--ink);
+  --color-muted: var(--ink-muted);
+  --color-gray: var(--gray);
+
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+
+  --color-royal: var(--royal);
+  --color-royal-hover: var(--royal-hover);
+  --color-royal-soft: var(--royal-soft);
+  --color-royal-ink: var(--royal-ink);
+
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --font-display: "Cormorant", ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+@theme {
+  /* Every radius token collapses to the same 3px.
+
+     This is deliberate and structural rather than a matter of discipline. The
+     brief was "very slightly rounded, consistent border radius everywhere", so
+     rather than trusting everyone to reach for the same utility, the scale
+     itself has been flattened. rounded-sm, rounded-lg, and rounded-3xl now all
+     produce 3px. Inconsistency is not available. */
+  --radius-xs: 3px;
+  --radius-sm: 3px;
+  --radius-md: 3px;
+  --radius-lg: 3px;
+  --radius-xl: 3px;
+  --radius-2xl: 3px;
+  --radius-3xl: 3px;
+  --radius-4xl: 3px;
+
+  /* Type scale. Tight and modest, because this is a dense tool rather than a
+     landing page. Cormorant runs small on the em, so display sizes are set
+     larger than the equivalent sans size would be. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.375rem;
+  --text-md: 0.9375rem;
+  --text-md--line-height: 1.5rem;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.625rem;
+  --text-xl: 1.5rem;
+  --text-xl--line-height: 1.875rem;
+  --text-2xl: 2rem;
+  --text-2xl--line-height: 2.25rem;
+  --text-3xl: 2.75rem;
+  --text-3xl--line-height: 3rem;
+
+  /* Motion is limited to two things: telling you something is loading, and
+     telling you something arrived. Nothing moves on hover. */
+  --animate-pulse-flat: pulse-flat 1.6s ease-in-out infinite;
+  --animate-arrive: arrive 240ms ease-out both;
+  --animate-spin-flat: spin-flat 700ms linear infinite;
+}
+
+/* Skeleton loaders pulse opacity rather than sweeping a highlight across
+   themselves, because a shimmer needs a gradient and gradients are out. */
+@keyframes pulse-flat {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* Used once, when a message lands in the mock inbox. A small rise plus a fade
+   is what makes a stacked card read as "arrived" instead of "was always here". */
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes spin-flat {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Base
+   -------------------------------------------------------------------------- */
+
+@layer base {
+  * {
+    border-color: var(--rule);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    /* Painted from a token rather than left transparent, so the page never
+       borrows a background from whatever is behind it. */
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--text-base--line-height);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+  }
+
+  /* Focus is instant. It is a state change, not an animation: the ring simply
+     exists or does not. Rendered with outline rather than box-shadow so it
+     never gets clipped by an overflow container. */
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background-color: var(--royal-soft);
+    color: var(--ink);
+  }
+
+  /* Digits that sit in columns must line up. Applies to the connector table,
+     timers, and attempt counters. */
+  table,
+  time,
+  [data-numeric] {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Honour the system preference. Loading indicators still change state, they
+     just stop moving, so nothing becomes invisible. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}

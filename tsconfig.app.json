@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "types": ["vite/client", "vitest/globals"],
+    "allowArbitraryExtensions": true,
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Path alias. Keeps imports stable when files move and removes deep
+       relative chains like ../../../components/ui/Button.
+
+       No baseUrl: TypeScript 6 deprecates it, and paths now resolve relative to
+       this file, which is what we wanted anyway. */
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+
+    /* Type safety. strict is on deliberately: the auth state is modelled as a
+       discriminated union, and narrowing only protects us if the compiler is
+       actually enforcing it. noUncheckedIndexedAccess makes array and record
+       lookups return T | undefined, which is what they really are. */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"]
+}
