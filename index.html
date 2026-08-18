@@ -11,27 +11,28 @@
     <title>Alkira Console</title>
     <script>
       /*
-        Applies the stored theme before first paint.
+        Stamps the theme before first paint.
 
-        This has to be inline and synchronous. If the theme were applied from
-        React after hydration, every dark-mode user would see one frame of the
-        light palette first, which is the flash-of-wrong-theme problem. Reading
-        localStorage and stamping the attribute here costs under a millisecond
-        and happens before the body renders.
+        This has to be inline and synchronous. If the attribute were applied
+        from React after hydration, every dark-mode user would see one frame of
+        the light palette first, which is the flash-of-wrong-theme problem.
+        Reading localStorage and stamping the attribute costs under a
+        millisecond and happens before the body renders.
 
-        No stored value means no attribute, which leaves prefers-color-scheme in
-        charge. That is the intended default.
+        The attribute is always written, never omitted. There is no
+        "follow the system" state, so an un-stamped document would be a state
+        the stylesheet has no rule for.
       */
       (function () {
+        var choice = "light";
         try {
           var stored = localStorage.getItem("alkira.theme");
-          if (stored === "light" || stored === "dark") {
-            document.documentElement.setAttribute("data-theme", stored);
-          }
+          if (stored === "light" || stored === "dark") choice = stored;
         } catch (_) {
-          /* Private browsing can throw on storage access. The OS preference is
-             a perfectly good fallback, so there is nothing to handle. */
+          /* Private browsing can throw on storage access. The default is a
+             perfectly good fallback, so there is nothing to handle. */
         }
+        document.documentElement.setAttribute("data-theme", choice);
       })();
     </script>
   </head>

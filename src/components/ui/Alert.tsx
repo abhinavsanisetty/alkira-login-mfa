@@ -51,7 +51,7 @@ export function Alert({ tone, title, className, children }: AlertProps) {
     <div role="alert" className={cn(alert({ tone }), className)}>
       <Icon name="alert" className={cn("mt-0.5", ICON_COLOR[tone ?? "danger"])} />
       <div className="flex flex-col gap-0.5">
-        {title ? <p className="font-bold text-ink">{title}</p> : null}
+        {title ? <p className="font-semibold text-ink">{title}</p> : null}
         <div className="text-ink">{children}</div>
       </div>
     </div>

@@ -28,17 +28,14 @@ export function LoginScreen() {
   return (
     <div className="w-full max-w-sm">
       <h1 className="text-2xl font-semibold text-ink">Sign in</h1>
-      <p className="mt-1 text-sm font-normal text-gray">
-        Use one of the seeded accounts listed in the README.
-      </p>
 
       <Card className="mt-5">
         <CardHeader>
-          <span className="flex items-center gap-2 text-sm font-bold text-ink">
+          <span className="flex items-center gap-2 font-display text-lg font-semibold text-ink">
             <Icon name="lock" className="text-royal" />
             First factor
           </span>
-          <span className="text-xs font-normal uppercase tracking-[0.08em] text-gray">
+          <span className="text-2xs font-semibold uppercase tracking-[0.07em] text-gray">
             Step 1 of 2
           </span>
         </CardHeader>
@@ -78,9 +75,9 @@ export function LoginScreen() {
         </CardBody>
       </Card>
 
-      <p className="mt-5 text-sm font-normal text-gray">
+      <p className="mt-5 text-sm text-gray">
         No account?{" "}
-        <Link to="/signup" className="font-bold text-royal underline underline-offset-2">
+        <Link to="/signup" className="font-medium text-royal underline underline-offset-2">
           Sign up
         </Link>
       </p>

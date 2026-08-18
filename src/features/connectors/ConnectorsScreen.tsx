@@ -78,7 +78,7 @@ export function ConnectorsScreen() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-xl font-semibold text-ink">Cloud connectors</h1>
-          <p className="mt-1 text-sm font-normal text-gray">
+          <p className="mt-1 text-sm text-gray">
             {canEdit
               ? "You have read and write access."
               : "You have read-only access. Edit actions are hidden."}
@@ -108,25 +108,25 @@ export function ConnectorsScreen() {
       */}
       <div aria-busy={connectors === null} className="mt-5 overflow-x-auto">
         <table className="w-full min-w-3xl border-separate border-spacing-y-1.5 text-left text-sm">
-          <thead className="text-xs font-bold uppercase tracking-[0.08em] text-gray">
+          <thead className="text-2xs font-semibold uppercase tracking-[0.07em] text-gray">
             <tr>
-              <th scope="col" className="px-4 pb-1 font-bold">
+              <th scope="col" className="px-4 pb-1 font-semibold">
                 Name
               </th>
-              <th scope="col" className="px-4 pb-1 font-bold">
+              <th scope="col" className="px-4 pb-1 font-semibold">
                 Type
               </th>
-              <th scope="col" className="px-4 pb-1 font-bold">
+              <th scope="col" className="px-4 pb-1 font-semibold">
                 Region
               </th>
-              <th scope="col" className="px-4 pb-1 font-bold">
+              <th scope="col" className="px-4 pb-1 font-semibold">
                 Owners
               </th>
-              <th scope="col" className="px-4 pb-1 font-bold">
+              <th scope="col" className="px-4 pb-1 font-semibold">
                 Status
               </th>
               {showActions ? (
-                <th scope="col" className="px-4 pb-1 text-right font-bold">
+                <th scope="col" className="px-4 pb-1 text-right font-semibold">
                   Actions
                 </th>
               ) : null}
@@ -186,12 +186,12 @@ export function ConnectorsScreen() {
                           type="button"
                           aria-pressed={selected}
                           onClick={() => setSelectedId(selected ? null : connector.id)}
-                          className="text-left font-bold text-ink"
+                          className="text-left font-display text-lg font-semibold text-ink"
                         >
                           {connector.name}
                         </button>
                       </td>
-                      <td className={cn(cell, "font-normal text-muted")}>{connector.type}</td>
+                      <td className={cn(cell, "text-muted")}>{connector.type}</td>
                       <td className={cn(cell, "font-mono text-xs text-muted")}>
                         {connector.region}
                       </td>

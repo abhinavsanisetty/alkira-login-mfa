@@ -26,51 +26,46 @@
 
 @import "tailwindcss";
 
-/* Cormorant is the primary face and runs through the entire interface: page
-   titles, labels, buttons, table body, badges, the lot. It is a Garamond
-   revival, so it sets small on the em and thin at 400. Two adjustments carry it
-   into interface use rather than fighting it:
+/* Two faces, with a clear division of labour.
 
-     - every size in the scale is set larger than a sans equivalent would be
-     - interface text runs at 600, reserving 500 for long-form and 300 for the
-       few places a lighter voice is wanted
+   Cormorant is the primary and carries the identity: page titles, the wordmark,
+   card header titles, connector names. It is a Garamond revival with generous
+   stroke contrast, which is exactly what makes it good at display sizes and bad
+   at 13px, so it is never asked to do the second job.
 
-   The full 300 to 700 range is imported because the typographic hierarchy is
-   built from weight and size rather than colour, which means the weights have
-   to actually be available. Anything less and the browser synthesises a fake
-   bold, which on a serif this fine looks like a rendering fault.
+   IBM Plex Sans is the secondary and does the work: form labels, hints, errors,
+   buttons, badges, table cells, column headers, metadata. This is the classic
+   serif-display against sans-interface pairing, and the point of it is that the
+   two faces are doing different things rather than decorating each other. Plex
+   also shares a skeleton with Plex Mono, so the third face never looks like a
+   stranger.
 
-   IBM Plex Mono survives for one job: verification codes, region identifiers,
-   and anything else that has to hold a column. Cormorant has no tabular figures
-   and proportional digits make a six-digit code reflow as it is typed.
+   IBM Plex Mono has one job: verification codes and region identifiers, where
+   proportional digits would make a field reflow as it is typed. Neither of the
+   other two has tabular figures.
 
    Self-hosted through @fontsource rather than a CDN link, so there is no
    third-party request, no layout shift from a late-arriving face, and no silent
-   fallback if the network is unavailable. */
-@import "@fontsource/cormorant/300.css";
-@import "@fontsource/cormorant/400.css";
+   fallback if the network is unavailable. Only the weights actually used are
+   imported. */
 @import "@fontsource/cormorant/500.css";
 @import "@fontsource/cormorant/600.css";
 @import "@fontsource/cormorant/700.css";
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
 
-/* The dark variant covers all three states a viewer can be in: explicitly dark,
-   explicitly light, and the un-stamped default where only the OS has an
-   opinion. The :not([data-theme="light"]) guard is what lets an explicit light
-   choice beat a dark operating system.
+/* Dark is driven by the stamped attribute and nothing else.
 
-   In practice this variant is rarely needed, because the tokens below already
-   flip. It exists for the handful of cases where dark needs a different border
-   weight or opacity rather than a different colour. */
+   There is no prefers-color-scheme branch, because there is no "follow the
+   system" option in the toggle. index.html always writes data-theme before
+   first paint, so the un-stamped state never reaches a user. See lib/theme.ts
+   for why that trade was made. */
 @custom-variant dark {
   &:where([data-theme="dark"], [data-theme="dark"] *) {
     @slot;
-  }
-  @media (prefers-color-scheme: dark) {
-    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
-      @slot;
-    }
   }
 }
 
@@ -141,46 +136,8 @@
    Not an inversion. Royal blue is lifted well above its light value, because
    #23408f on a dark ground is nearly unreadable, and the greys are re-picked
    rather than flipped so the tonal steps stay even. Still matte: no glow, no
-   saturation spike.
+   saturation spike. Reached only by an explicit choice in the toggle.
    -------------------------------------------------------------------------- */
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-
-    --paper: #14161a;
-    --surface: #1b1e23;
-    --surface-sunk: #0e1013;
-
-    --ink: #e8e7e2;
-    --ink-muted: #a8abb1;
-
-    --gray: #8d919a;
-    --gray-soft: #23262c;
-
-    --rule: #2b2f36;
-    --rule-strong: #3d424a;
-
-    --royal: #7d97d8;
-    --royal-hover: #93aae4;
-    --royal-soft: #1e2434;
-    --royal-line: #333c53;
-    --royal-ink: #10141c;
-
-    --band: #1a2440;
-    --band-ink: #dde3f2;
-    --band-line: #26314f;
-
-    --ok: #82a68a;
-    --ok-soft: #1a251f;
-    --warn: #c0a165;
-    --warn-soft: #292317;
-    --danger: #c67c70;
-    --danger-soft: #2a1c19;
-
-    --focus: #7d97d8;
-  }
-}
 
 :root[data-theme="dark"] {
   color-scheme: dark;
@@ -253,7 +210,7 @@
   --color-danger-soft: var(--danger-soft);
 
   --font-display: "Cormorant", ui-serif, Garamond, Georgia, serif;
-  --font-sans: "Cormorant", ui-serif, Garamond, Georgia, serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
 }
 
@@ -278,29 +235,34 @@
   --radius-3xl: 3px;
   --radius-4xl: 3px;
 
-  /* Type scale, set for Cormorant rather than for a sans.
+  /* Type scale.
 
-     A Garamond revival has a small x-height, so every step here is roughly two
-     points larger than the equivalent sans size would be. Anything below
-     --text-sm is illegible in this face regardless of weight, which is why the
-     scale simply has no smaller step: the constraint is expressed by absence,
-     the same way the radius scale is. */
-  --text-xs: 0.875rem;
+     Sized for IBM Plex Sans, which carries every step from --text-xs to
+     --text-lg. Those are ordinary interface sizes: a sans with a large x-height
+     stays legible at 13px in a way Cormorant does not, which is the whole
+     reason the second face exists.
+
+     The three display steps are Cormorant's, and they start well above where
+     the interface steps stop. There is no overlap between the two ranges, so
+     the faces never appear at the same size and never compete. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-xs: 0.75rem;
   --text-xs--line-height: 1.125rem;
-  --text-sm: 0.9375rem;
-  --text-sm--line-height: 1.3125rem;
-  --text-base: 1.0625rem;
-  --text-base--line-height: 1.5rem;
-  --text-md: 1.1875rem;
-  --text-md--line-height: 1.625rem;
-  --text-lg: 1.375rem;
-  --text-lg--line-height: 1.75rem;
-  --text-xl: 1.75rem;
-  --text-xl--line-height: 2.125rem;
-  --text-2xl: 2.375rem;
-  --text-2xl--line-height: 2.625rem;
-  --text-3xl: 3.25rem;
-  --text-3xl--line-height: 3.5rem;
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 0.875rem;
+  --text-base--line-height: 1.375rem;
+  --text-md: 0.9375rem;
+  --text-md--line-height: 1.5rem;
+  --text-lg: 1.0625rem;
+  --text-lg--line-height: 1.625rem;
+  --text-xl: 1.625rem;
+  --text-xl--line-height: 2rem;
+  --text-2xl: 2.25rem;
+  --text-2xl--line-height: 2.5rem;
+  --text-3xl: 3rem;
+  --text-3xl--line-height: 3.25rem;
 
   /* Motion exists for exactly one reason: telling you something is loading.
      Nothing moves on hover, nothing eases between states, nothing animates on
@@ -349,15 +311,15 @@
     font-family: var(--font-sans);
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
-    font-weight: 600;
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Headings are set in the same face as everything else, so they separate
-     themselves by weight and size alone, which is what the hierarchy rule asks
-     for. At display sizes Cormorant has enough stroke contrast to hold its own
-     at 600 without going to 700. */
+  /* Headings are Cormorant, and they are the main place it appears. At display
+     sizes it has enough stroke contrast to hold its own at 600 without going to
+     700. Hierarchy still comes from weight and size rather than colour: the
+     change of face reinforces it, it does not replace it. */
   h1,
   h2,
   h3 {

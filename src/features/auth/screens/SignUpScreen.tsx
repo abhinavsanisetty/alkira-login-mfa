@@ -24,13 +24,13 @@ export function SignUpScreen() {
   return (
     <div className="w-full max-w-sm">
       <h1 className="text-2xl font-semibold text-ink">Create an account</h1>
-      <p className="mt-1 text-sm font-normal text-gray">
+      <p className="mt-1 text-sm text-gray">
         The form validates for real. Registration itself is out of scope for this exercise.
       </p>
 
       <Card className="mt-5">
         <CardHeader>
-          <span className="flex items-center gap-2 text-sm font-bold text-ink">
+          <span className="flex items-center gap-2 font-display text-lg font-semibold text-ink">
             <Icon name="mail" className="text-royal" />
             Your details
           </span>
@@ -85,9 +85,9 @@ export function SignUpScreen() {
         </CardBody>
       </Card>
 
-      <p className="mt-5 text-sm font-normal text-gray">
+      <p className="mt-5 text-sm text-gray">
         Already have an account?{" "}
-        <Link to="/login" className="font-bold text-royal underline underline-offset-2">
+        <Link to="/login" className="font-medium text-royal underline underline-offset-2">
           Sign in
         </Link>
       </p>

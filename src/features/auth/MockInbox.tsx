@@ -29,8 +29,8 @@ export function MockInbox() {
       aria-label="Development inbox"
       className="w-full rounded-sm border border-dashed border-rule-strong bg-sunk p-4 lg:w-64"
     >
-      <p className="text-xs font-bold uppercase tracking-[0.08em] text-gray">Dev inbox</p>
-      <p className="mt-0.5 text-xs font-normal text-gray">Not part of the product.</p>
+      <p className="text-2xs font-semibold uppercase tracking-[0.07em] text-gray">Dev inbox</p>
+      <p className="mt-0.5 text-xs text-gray">Not part of the product.</p>
 
       {messages.length === 0 ? (
         <p className="mt-3 text-sm font-normal text-gray">No messages.</p>
@@ -44,7 +44,7 @@ export function MockInbox() {
                 message.superseded ? "border-rule border-l-rule-strong" : "border-rule border-l-royal",
               )}
             >
-              <p className="text-xs font-normal text-gray">To {message.email}</p>
+              <p className="text-xs text-gray">To {message.email}</p>
               <p
                 data-numeric
                 className={cn(
@@ -55,7 +55,7 @@ export function MockInbox() {
                 {message.code}
               </p>
               {message.superseded ? (
-                <p className="mt-0.5 text-xs font-normal text-gray">Superseded by a newer code</p>
+                <p className="mt-0.5 text-2xs text-gray">Superseded by a newer code</p>
               ) : null}
             </li>
           ))}

@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 const input = cva(
   [
     "w-full rounded-sm border bg-surface px-3 text-ink",
-    "font-semibold placeholder:font-normal placeholder:text-gray",
+    "placeholder:text-gray",
     "disabled:cursor-not-allowed disabled:bg-sunk disabled:text-gray",
     // Browsers apply their own yellow autofill background, which destroys the
     // matte palette. Repainting it from a token keeps autofilled fields looking

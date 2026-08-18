@@ -27,17 +27,17 @@ export function MfaScreen() {
     <div className="flex w-full max-w-3xl flex-col gap-6 lg:flex-row lg:items-start">
       <div className="w-full max-w-sm">
         <h1 className="text-2xl font-semibold text-ink">Check your email</h1>
-        <p className="mt-1 text-sm font-normal text-gray">
+        <p className="mt-1 text-sm text-gray">
           We sent a {OTP_LENGTH} digit code to {challenge.email}.
         </p>
 
         <Card className="mt-5">
           <CardHeader>
-            <span className="flex items-center gap-2 text-sm font-bold text-ink">
+            <span className="flex items-center gap-2 font-display text-lg font-semibold text-ink">
               <Icon name="shield" className="text-royal" />
               Second factor
             </span>
-            <span className="text-xs font-normal uppercase tracking-[0.08em] text-gray">
+            <span className="text-2xs font-semibold uppercase tracking-[0.07em] text-gray">
               Step 2 of 2
             </span>
           </CardHeader>

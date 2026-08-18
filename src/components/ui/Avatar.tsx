@@ -60,7 +60,7 @@ export function Avatar({
       title={name}
       className={cn(
         "inline-flex items-center justify-center rounded-full",
-        "bg-royal-soft font-semibold text-royal",
+        "bg-royal-soft text-2xs font-semibold text-royal",
         "border border-royal-line",
         ringed && "ring-2 ring-surface",
         SIZE[size],
@@ -113,7 +113,7 @@ export function AvatarStack({
             title={names.slice(max).join(", ")}
             className={cn(
               "inline-flex items-center justify-center rounded-full",
-              "border border-rule bg-gray-soft font-semibold text-gray ring-2 ring-surface",
+              "border border-rule bg-gray-soft text-2xs font-semibold text-gray ring-2 ring-surface",
               SIZE.sm,
             )}
           >

@@ -13,15 +13,15 @@ import { cn } from "@/lib/cn";
  * people.
  *
  * Each tone pairs a *-soft ground with its matching solid as the text colour, so
- * the two always come from the same hue and the pairing cannot drift. Small
- * caps with a little tracking, because Cormorant's lowercase at this size loses
- * its footing and the uppercase forms stay crisp.
+ * the two always come from the same hue and the pairing cannot drift. Set in
+ * Plex Sans: a badge is a label, and at this size the sans is the only face
+ * that stays crisp.
  */
 const badge = cva(
   [
     "inline-flex items-center gap-1.5",
     "rounded-sm border px-2 py-0.5",
-    "text-xs font-bold uppercase tracking-[0.08em]",
+    "text-2xs font-semibold uppercase tracking-[0.07em]",
     "whitespace-nowrap",
   ],
   {

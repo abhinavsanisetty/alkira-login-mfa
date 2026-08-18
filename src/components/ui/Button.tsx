@@ -18,15 +18,14 @@ import { cn } from "@/lib/cn";
  * two states. That constraint is enforced by never introducing a duration in
  * this file rather than by remembering not to.
  *
- * Set at weight 700 with a little tracking. Cormorant at 600 is too fine to
- * hold a solid royal ground at button size, and letting the label thin out on
- * the primary action is the fastest way to make a serif interface look
- * accidental rather than chosen.
+ * Labels are Plex Sans at 600. Buttons are interface furniture rather than
+ * display type, and a serif label on a solid royal ground reads as a pull quote
+ * with a box round it.
  */
 const button = cva(
   [
     "inline-flex items-center justify-center gap-2",
-    "rounded-sm border font-bold tracking-[0.01em]",
+    "rounded-sm border font-semibold",
     "select-none whitespace-nowrap",
     // A disabled button in this application always means "busy" or "nothing to
     // submit yet". It never means "you lack permission", because permission is

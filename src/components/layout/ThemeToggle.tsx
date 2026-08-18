@@ -6,17 +6,16 @@ import { applyTheme, readStoredTheme, type ThemeChoice } from "@/lib/theme";
 
 const OPTIONS: ReadonlyArray<{ value: ThemeChoice; label: string; icon: IconName }> = [
   { value: "light", label: "Light", icon: "sun" },
-  { value: "system", label: "Auto", icon: "monitor" },
   { value: "dark", label: "Dark", icon: "moon" },
 ];
 
 /**
- * A three-way theme control.
+ * A two-way theme control.
  *
- * Three options rather than a two-state switch, because "follow the operating
- * system" is a real preference and not the same as either fixed choice. A
- * binary toggle has to pick one of them as its resting state, which silently
- * overrides the user's system setting the first time they touch it.
+ * Light and dark, with no "follow the system" option. That choice is made in
+ * lib/theme.ts and the reasoning lives there; what matters here is that the
+ * control can always show the truth, because the document is always stamped
+ * with one of exactly these two values.
  *
  * Initialised from storage with a lazy useState initialiser rather than an
  * effect. The attribute has already been stamped on <html> by the inline script
@@ -28,9 +27,9 @@ const OPTIONS: ReadonlyArray<{ value: ThemeChoice; label: string; icon: IconName
  *
  * The selected segment takes a solid fill rather than the left accent border
  * used for selected rows elsewhere. A left edge is a list device: it works
- * because rows stack vertically and the marks line up into a column. On three
- * segments sitting side by side it would land in the middle of the control and
- * read as a divider between two options rather than as a mark on one of them.
+ * because rows stack vertically and the marks line up into a column. On two
+ * segments sitting side by side it would land between them and read as a
+ * divider rather than as a mark on one of them.
  */
 export function ThemeToggle({ tone = "paper" }: { tone?: "paper" | "band" }) {
   const [choice, setChoice] = useState<ThemeChoice>(readStoredTheme);

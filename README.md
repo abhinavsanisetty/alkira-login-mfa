@@ -17,7 +17,7 @@ trade-off was knowingly accepted.
 | State | React Context + `useReducer` | The reducer *is* the state machine — no dependency needed for four fields |
 | Routing | React Router 7 | Guards are layout routes, so protection is structural |
 | Styling | Tailwind v4 + `cva` + `tailwind-merge` | Tokens in `@theme`; utilities never leak into feature code |
-| Type | Cormorant, self-hosted | One face throughout; hierarchy comes from weight and size, not colour |
+| Type | Cormorant + IBM Plex Sans, self-hosted | Serif for identity, sans for interface; the two never appear at the same size |
 | Forms | react-hook-form + Zod | One schema is the source of truth for the form *and* the mock API |
 | Mock API | MSW (Mock Service Worker) | The app makes real `fetch` calls; the mock lives outside `src/` |
 | Tests | Vitest + React Testing Library | Native to Vite; the same MSW handlers serve dev and tests |
@@ -171,10 +171,14 @@ deleting the mock rather than rewriting a service layer. The same handlers run i
 
 The look is a stated brief rather than a default, and it is enforced structurally where it can be:
 
-- **One face.** Cormorant carries the whole interface, not just headings. It is a Garamond revival
-  with a small x-height, so the type scale is set larger than a sans equivalent and interface text
-  runs at weight 600. IBM Plex Mono survives for one job: verification codes and region identifiers,
-  where proportional digits would make a field reflow as you type.
+- **Two faces with different jobs.** Cormorant is the primary and carries identity: page titles, the
+  wordmark, card titles, connector names. IBM Plex Sans is the secondary and does the work: labels,
+  hints, errors, buttons, badges, column headers, metadata. Cormorant is a Garamond revival with
+  heavy stroke contrast, which is what makes it good at display sizes and bad at 13px, so it is never
+  asked to do the second job. The interface steps of the type scale stop where the display steps
+  begin, so the two faces never appear at the same size and never compete. IBM Plex Mono has one job:
+  verification codes and region identifiers, where proportional digits would make a field reflow as
+  you type.
 - **One radius.** Every radius token in `@theme` collapses to the same 3px, so `rounded-sm` and
   `rounded-3xl` produce identical output. Inconsistency is not available rather than discouraged.
   Circles are the single exception, reserved for avatars.
@@ -191,6 +195,13 @@ The header is where royal blue stops being an accent: it fills the signed-in she
 while the unauthenticated shell stays off white. The palette itself marks the security boundary. In
 dark mode the band darkens rather than lightening with the accent, because a full-width band painted
 in the lifted accent would be the brightest object on a near-black page.
+
+The theme control offers light and dark, with no "follow the system" option, and light is the
+default. That is a deliberate trade rather than an omission. A three-way control respects the OS
+setting, but with only two options an OS-aware default would leave a dark-OS visitor looking at the
+dark palette while the toggle sat on "Light" — the control would be lying. `index.html` therefore
+stamps `data-theme` before first paint and never leaves it off, and the stylesheet has no
+`prefers-color-scheme` rule at all.
 
 ### Assumptions
 
