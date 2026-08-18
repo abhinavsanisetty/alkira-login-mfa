@@ -59,16 +59,13 @@ the network layer and answers them itself.
 
 ## Mock accounts
 
-All three use the password `Password123!`.
+Both use the password `Password123!`.
 
 | Email | Role | What they can do |
 |---|---|---|
 | `viewer@alkira.com` | Viewer | View connectors. Create, edit, and delete controls are not rendered at all |
 | `editor@alkira.com` | Editor | View, create, edit, and delete connectors |
-| `admin@alkira.com` | Admin | Everything an editor can do, plus `user:manage` |
 
-Two roles are enough to show the difference. The third one is there because adding it meant editing
-a data structure rather than touching a component, which is the whole point of the permission model.
 
 The one time code is not emailed anywhere. It appears in a Dev inbox panel docked beside the MFA
 form, which is the one part of MFA that cannot exist without a backend. Everything else about the
