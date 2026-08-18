@@ -116,7 +116,7 @@ the code is real: random generation, five-minute expiry, three attempts, single 
 npm test
 ```
 
-45 tests. The reducer and the permission model are unit-tested with no React involved; the flow
+48 tests. The reducer and the permission model are unit-tested with no React involved; the flow
 above is covered end-to-end by integration tests driving the real components through the real
 `fetch` path.
 
