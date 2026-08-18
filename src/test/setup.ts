@@ -1,17 +1,28 @@
 import "@testing-library/jest-dom/vitest";
 
 import { cleanup } from "@testing-library/react";
-import { afterEach, beforeAll, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, vi } from "vitest";
+
+import { resetMockState } from "@/mocks/handlers";
+import { server } from "@/mocks/server";
 
 /**
  * Test environment setup, run once before every test file.
  */
+
+// The same handlers that serve the browser serve the tests, so tests exercise
+// the real fetch path rather than a stubbed service.
+beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+afterAll(() => server.close());
 
 // Unmount anything left behind by the previous test. Without this, queries in
 // one test can match elements rendered by an earlier one, which produces
 // failures that only appear when tests run together and pass in isolation.
 afterEach(() => {
   cleanup();
+  server.resetHandlers();
+  resetMockState();
+  sessionStorage.clear();
 });
 
 beforeAll(() => {
