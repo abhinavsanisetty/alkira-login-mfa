@@ -1,7 +1,7 @@
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { UserEvent } from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { Link, MemoryRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { App } from "@/app/App";
@@ -12,6 +12,11 @@ import { inbox } from "@/mocks/inbox";
  * Integration coverage for the flow the brief describes. These drive the real
  * components through the real fetch path — MSW answers in Node with the same
  * handlers the browser uses — so what is exercised here is what ships.
+ *
+ * Each renderApp call builds its own AuthProvider, so a second call is a fresh
+ * tree rehydrating from sessionStorage — which is exactly a page reload, and is
+ * used deliberately as one below. Navigating *within* one session must go
+ * through the test-only link, or the assertion is about a different visitor.
  */
 
 function renderApp(route = "/login") {
@@ -21,6 +26,9 @@ function renderApp(route = "/login") {
       <MemoryRouter initialEntries={[route]}>
         <AuthProvider>
           <App />
+          <Link to="/connectors" data-testid="goto-connectors">
+            test-nav
+          </Link>
         </AuthProvider>
       </MemoryRouter>,
     ),
@@ -134,19 +142,63 @@ describe("route protection", () => {
     expect(await screen.findByRole("heading", { name: /sign in/i })).toBeInTheDocument();
   });
 
-  // The test that proves the second factor is not decorative: password verified,
-  // challenge live, and /connectors is still refused.
+  // The test that proves the second factor is not decorative: the password is
+  // verified and a challenge is live, and /connectors is *still* refused. The
+  // navigation happens inside the same provider, so this is the same visitor
+  // mid-challenge rather than a fresh anonymous one.
   it("refuses a protected route to a password-verified but pre-MFA visitor", async () => {
     const { user } = renderApp();
     await signIn(user, "editor@alkira.com");
 
-    renderApp("/connectors");
-    expect(await screen.findAllByRole("heading", { name: /sign in/i })).not.toHaveLength(0);
+    await user.click(screen.getByTestId("goto-connectors"));
+
+    expect(await screen.findByRole("heading", { name: /check your email/i })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /cloud connectors/i })).not.toBeInTheDocument();
   });
 
   it("redirects an anonymous visitor away from the MFA screen", async () => {
     renderApp("/mfa");
     expect(await screen.findByRole("heading", { name: /sign in/i })).toBeInTheDocument();
+  });
+});
+
+describe("session persistence", () => {
+  it("keeps an authenticated session across a reload", async () => {
+    const { user, unmount } = renderApp();
+    await signIn(user, "editor@alkira.com");
+    await completeMfa(user);
+    unmount();
+
+    renderApp("/connectors");
+    expect(await screen.findByRole("heading", { name: /cloud connectors/i })).toBeInTheDocument();
+  });
+
+  // Without this, signing out leaves the session in storage and the next reload
+  // silently signs you back in.
+  it("clears the stored session on sign out", async () => {
+    const { user, unmount } = renderApp();
+    await signIn(user, "editor@alkira.com");
+    await completeMfa(user);
+
+    await user.click(screen.getByRole("button", { name: /sign out/i }));
+    await screen.findByRole("heading", { name: /sign in/i });
+    unmount();
+
+    renderApp("/connectors");
+    expect(await screen.findByRole("heading", { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /cloud connectors/i })).not.toBeInTheDocument();
+  });
+
+  // A half-completed authentication surviving a refresh is the thing a second
+  // factor exists to prevent, so the challenge is deliberately never persisted.
+  it("returns a mid-challenge visitor to sign in after a reload", async () => {
+    const { user, unmount } = renderApp();
+    await signIn(user, "editor@alkira.com");
+    unmount();
+
+    renderApp("/mfa");
+    expect(await screen.findByRole("heading", { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /check your email/i })).not.toBeInTheDocument();
   });
 });
 
