@@ -328,3 +328,78 @@ describe("sign up", () => {
     expect(alert).toHaveTextContent(/no account was created/i);
   });
 });
+
+describe("renaming a connector", () => {
+  async function openRename(user: UserEvent, row = 1) {
+    const rows = within(screen.getByRole("table")).getAllByRole("row");
+    await user.click(within(rows[row] as HTMLElement).getByRole("button", { name: /edit/i }));
+    return screen.getByRole("textbox", { name: /rename/i });
+  }
+
+  it("renames a connector through the API and shows the new name", async () => {
+    const { user } = renderApp();
+    await signIn(user, "editor@alkira.com");
+    await completeMfa(user);
+
+    const field = await openRename(user);
+    await user.clear(field);
+    await user.type(field, "prod-us-west-2");
+    await user.click(screen.getByRole("button", { name: /^save$/i }));
+
+    expect(await screen.findByRole("button", { name: "prod-us-west-2" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "prod-us-west" })).not.toBeInTheDocument();
+  });
+
+  it("rejects a name the schema does not accept and keeps the old one", async () => {
+    const { user } = renderApp();
+    await signIn(user, "editor@alkira.com");
+    await completeMfa(user);
+
+    const field = await openRename(user);
+    await user.clear(field);
+    await user.type(field, "Prod US West");
+    await user.click(screen.getByRole("button", { name: /^save$/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/lowercase letters, numbers, and hyphens/i);
+    expect(screen.getByRole("textbox", { name: /rename/i })).toBeInTheDocument();
+  });
+
+  // The duplicate check only exists on the mock's side of the boundary, so this
+  // is the test that proves the request is really being made and answered.
+  it("surfaces the server's conflict when the name is taken", async () => {
+    const { user } = renderApp();
+    await signIn(user, "editor@alkira.com");
+    await completeMfa(user);
+
+    const field = await openRename(user);
+    await user.clear(field);
+    await user.type(field, "prod-eu-central");
+    await user.click(screen.getByRole("button", { name: /^save$/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(/already exists/i);
+    expect(screen.getByRole("button", { name: "prod-eu-central" })).toBeInTheDocument();
+  });
+
+  it("restores the original name on cancel", async () => {
+    const { user } = renderApp();
+    await signIn(user, "editor@alkira.com");
+    await completeMfa(user);
+
+    const field = await openRename(user);
+    await user.clear(field);
+    await user.type(field, "discarded-name");
+    await user.click(screen.getByRole("button", { name: /^cancel$/i }));
+
+    expect(screen.getByRole("button", { name: "prod-us-west" })).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: /rename/i })).not.toBeInTheDocument();
+  });
+
+  it("offers no rename control to a read-only role", async () => {
+    const { user } = renderApp();
+    await signIn(user, "viewer@alkira.com");
+    await completeMfa(user);
+
+    expect(screen.queryByRole("button", { name: /edit/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: /rename/i })).not.toBeInTheDocument();
+  });
+});

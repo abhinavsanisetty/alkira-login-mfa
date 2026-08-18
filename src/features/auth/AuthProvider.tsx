@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import type { ReactNode } from "react";
 
 import { ApiError, authApi } from "@/lib/api";
+import type { ApiErrorCode } from "@/lib/api";
 import { SESSION_STORAGE_KEY } from "@/lib/constants";
 import { PERMISSIONS } from "@/lib/permissions";
 import type { LoginInput } from "@/lib/schemas";
@@ -25,10 +26,27 @@ function rehydrate(): AuthState {
   }
 }
 
+/** The auth endpoints only ever answer with auth codes, but the transport can
+ *  carry connector codes too, so crossing back into this domain is a narrowing
+ *  rather than a cast. Anything unrecognised becomes NETWORK, which is the
+ *  honest reading of "the server said something this domain does not model". */
+const AUTH_CODES: ReadonlySet<ApiErrorCode> = new Set<ApiErrorCode>([
+  "INVALID_CREDENTIALS",
+  "OTP_INVALID",
+  "OTP_EXPIRED",
+  "TOO_MANY_ATTEMPTS",
+  "RATE_LIMITED",
+  "NETWORK",
+]);
+
 function toAuthError(error: unknown): AuthError {
-  return error instanceof ApiError
-    ? error.detail
-    : { code: "NETWORK", message: "Something went wrong. Try again." };
+  if (error instanceof ApiError && AUTH_CODES.has(error.detail.code)) {
+    return { code: error.detail.code as AuthError["code"], message: error.detail.message };
+  }
+  return {
+    code: "NETWORK",
+    message: error instanceof ApiError ? error.detail.message : "Something went wrong. Try again.",
+  };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

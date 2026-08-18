@@ -108,6 +108,11 @@ the code is real: random generation, five-minute expiry, three attempts, single 
 **Read-only vs read/write**
 - Sign in as `editor@alkira.com`: the list has an Actions column with Edit and Delete on each row, a
   **New connector** button, and an add control on each owner cluster.
+- Press **Edit** on a row. The name becomes an input with Save and Cancel; Enter saves and Escape
+  cancels. Rename `prod-us-west` to `prod-us-west-2` and it persists.
+- Press **Edit** again and try `Prod US West` → *"Use lowercase letters, numbers, and hyphens."*
+  Try `prod-eu-central` → *"A connector with that name already exists."* (a real `409` from the mock,
+  not a client-side guess). Press **Cancel** and the original name is intact.
 - Sign out, sign in as `viewer@alkira.com`: the Actions column is gone entirely, the create button is
   absent, the add-owner controls are gone, and the header reads **Viewer**.
 - Click a connector name in either role. The row takes a royal edge down its left side, and only one
@@ -119,15 +124,23 @@ the code is real: random generation, five-minute expiry, three attempts, single 
 npm test
 ```
 
-53 tests. The reducer and the permission model are unit-tested with no React involved; the flow
-above is covered end-to-end by integration tests driving the real components through the real
-`fetch` path.
+66 tests. The reducer and the permission model are unit-tested with no React involved; the mock API
+is tested at its own boundary without React; and the flow above is covered end-to-end by integration
+tests driving the real components through the real `fetch` path.
 
-The suite is checked by mutation rather than by coverage percentage: eighteen deliberate bugs were
-introduced across the reducer, the permission map, the route guards, session persistence, and the
-role gating in the UI, and every one of them broke a test. That is the evidence that the tests
-assert something. One of them found a real gap, which is now covered: nothing had verified that
-signing out clears the persisted session.
+The suite is checked by mutation rather than by coverage percentage: 25 deliberate bugs were
+introduced across the reducer, the permission map, the route guards, session persistence, the mock
+API, and the role gating in the UI. 24 of the 25 broke a test. That is the evidence that the tests
+assert something rather than merely execute it.
+
+Two of those mutations found real gaps, both now closed. Nothing had verified that signing out
+clears the persisted session, and nothing had reached the server-side validation on rename, because
+the form validates before it sends — which is why `src/mocks/handlers.test.ts` exists.
+
+The one survivor is honest and documented in the code: each row action checks its own permission as
+well as sitting behind the Actions column, and with the three roles that exist today those two
+checks are equivalent, so removing the inner one breaks nothing. It stays for the day a role gets
+delete without edit.
 
 ---
 
@@ -231,11 +244,14 @@ stamps `data-theme` before first paint and never leaves it off, and the styleshe
    chosen for UX because enumeration leaks through signup and password reset anyway, and mitigated
    with per-account rate limiting. For a product where account existence is itself sensitive, the
    generic message is correct and I would flip it.
-6. **Edit and add-owner are stubs.** Both demonstrate the permission gate and neither opens a form.
-   Create and Delete are wired through to the mock API.
-7. **No password reset flow.** Out of scope, but it is where recovery-path security would need the
+6. **Add-owner is a stub.** It demonstrates the permission gate and opens nothing; there is no user
+   directory to pick from. Create, rename, and delete all reach the mock API.
+7. **Rename is the only editable field.** Type, region, and status are fixed. The rename path is
+   complete — shared schema, `409` on a duplicate, `404` on a missing connector — so extending it to
+   the other fields is more of the same rather than anything new.
+8. **No password reset flow.** Out of scope, but it is where recovery-path security would need the
    most attention — recovery is usually the weakest link in an auth system.
-8. **The mock runs in production builds too.** `npm run preview` would otherwise have nothing to
+9. **The mock runs in production builds too.** `npm run preview` would otherwise have nothing to
    talk to. With a real API, that call in `src/main.tsx` is deleted.
 
 ---

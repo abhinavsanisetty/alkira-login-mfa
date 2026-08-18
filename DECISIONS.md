@@ -473,11 +473,16 @@ authentication, rather than always landing on the dashboard.
 ## 12. Protected screen content — Cloud Connectors
 
 **Decision:** the protected screen is a table of cloud connectors — Name, Type (AWS / Azure / GCP),
-Region, Status — with a page-level "New Connector" action and per-row Edit and Delete actions.
+Region, Owners, Status — with a page-level "New Connector" action and per-row Edit, Delete, and
+add-owner actions.
 
-**Why this shape:** it yields three distinct permission gates at two different levels (one
-page-level, two row-level), which demonstrates that `can()` is consulted consistently rather than
+**Why this shape:** it yields four distinct permission gates at two different levels (one
+page-level, three row-level), which demonstrates that `can()` is consulted consistently rather than
 applied once. A single button would not prove that.
+
+Edit is a real inline rename against `PATCH /api/connectors/:id`, not a control that only proves the
+gate. Create, rename, and delete all reach the mock API, so the read/write role is demonstrably
+read/write rather than merely shown different buttons.
 
 **Why this domain:** Alkira builds multi-cloud networking infrastructure, so connectors are
 plausible domain content rather than generic placeholder data. It is kept deliberately shallow —

@@ -1,6 +1,6 @@
 import { delay, http, HttpResponse } from "msw";
 
-import type { AuthErrorCode, User } from "@/features/auth/types";
+import type { User } from "@/features/auth/types";
 import {
   LOGIN_MAX_ATTEMPTS,
   LOGIN_RATE_WINDOW_MS,
@@ -9,7 +9,8 @@ import {
   OTP_MAX_ATTEMPTS,
   OTP_TTL_MS,
 } from "@/lib/constants";
-import { loginSchema, mfaSchema } from "@/lib/schemas";
+import type { ApiErrorCode } from "@/lib/api";
+import { connectorSchema, loginSchema, mfaSchema } from "@/lib/schemas";
 
 import { SEED_CONNECTORS, SEED_USERS, type Connector } from "./data";
 import { inbox } from "./inbox";
@@ -27,7 +28,7 @@ const challenges = new Map<string, ChallengeRecord>();
 const loginAttempts = new Map<string, number[]>();
 let connectors: Connector[] = [...SEED_CONNECTORS];
 
-function fail(status: number, code: AuthErrorCode, message: string, extra?: object) {
+function fail(status: number, code: ApiErrorCode, message: string, extra?: object) {
   return HttpResponse.json({ code, message, ...extra }, { status });
 }
 
@@ -184,6 +185,27 @@ export const handlers = [
     };
     connectors = [created, ...connectors];
     return HttpResponse.json(created, { status: 201 });
+  }),
+
+  http.patch("/api/connectors/:id", async ({ params, request }) => {
+    await latency();
+
+    const parsed = connectorSchema.safeParse(await request.json());
+    if (!parsed.success) {
+      return fail(400, "VALIDATION", parsed.error.issues[0]?.message ?? "That name is not valid.");
+    }
+
+    const target = connectors.find((c) => c.id === params.id);
+    if (!target) return fail(404, "NOT_FOUND", "That connector no longer exists.");
+
+    // Names identify a connector to an operator, so a duplicate is a real
+    // conflict rather than a cosmetic one. 409 is the honest status for it.
+    const taken = connectors.some((c) => c.id !== params.id && c.name === parsed.data.name);
+    if (taken) return fail(409, "CONFLICT", "A connector with that name already exists.");
+
+    const updated: Connector = { ...target, name: parsed.data.name };
+    connectors = connectors.map((c) => (c.id === updated.id ? updated : c));
+    return HttpResponse.json(updated);
   }),
 
   http.delete("/api/connectors/:id", async ({ params }) => {

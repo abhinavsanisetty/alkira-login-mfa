@@ -29,6 +29,19 @@ export const signUpSchema = z
     path: ["confirmPassword"],
   });
 
+/** A connector's editable fields. Shared by the rename form and the PATCH
+ *  handler for the same reason the auth schemas are shared: the client and the
+ *  server cannot disagree about what a valid name is. */
+export const connectorSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Use at least 2 characters")
+    .max(40, "Use 40 characters or fewer")
+    .regex(/^[a-z0-9][a-z0-9-]*$/, "Use lowercase letters, numbers, and hyphens"),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type MfaInput = z.infer<typeof mfaSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;
+export type ConnectorInput = z.infer<typeof connectorSchema>;

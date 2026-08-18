@@ -1,14 +1,31 @@
-import type { AuthError, Challenge, User } from "@/features/auth";
+import type { AuthErrorCode, Challenge, User } from "@/features/auth";
 import type { Connector } from "@/mocks/data";
-import type { LoginInput } from "@/lib/schemas";
+import type { ConnectorInput, LoginInput } from "@/lib/schemas";
+
+/**
+ * Every code the API can return, which is a superset of the auth codes.
+ *
+ * The connector endpoints answer with VALIDATION, NOT_FOUND, and CONFLICT, and
+ * none of those belong in AuthErrorCode: that union is the auth domain's
+ * vocabulary, and widening it so an unrelated feature can reuse the transport
+ * would let a connector conflict flow into the auth reducer unchallenged. The
+ * transport gets its own superset instead, and crossing back into the auth
+ * domain is a narrowing step the compiler enforces.
+ */
+export type ApiErrorCode = AuthErrorCode | "VALIDATION" | "NOT_FOUND" | "CONFLICT";
+
+export interface ApiErrorDetail {
+  code: ApiErrorCode;
+  message: string;
+}
 
 /** Carries the server's error body. `attemptsRemaining` is present only on MFA
  *  failures, where the reducer needs it to decide whether the challenge dies. */
 export class ApiError extends Error {
-  readonly detail: AuthError;
+  readonly detail: ApiErrorDetail;
   readonly attemptsRemaining?: number;
 
-  constructor(detail: AuthError, attemptsRemaining?: number) {
+  constructor(detail: ApiErrorDetail, attemptsRemaining?: number) {
     super(detail.message);
     this.name = "ApiError";
     this.detail = detail;
@@ -29,7 +46,7 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     const body = (await response.json().catch(() => null)) as
-      | (AuthError & { attemptsRemaining?: number })
+      | (ApiErrorDetail & { attemptsRemaining?: number })
       | null;
     throw new ApiError(
       body ?? { code: "NETWORK", message: "Something went wrong." },
@@ -54,5 +71,10 @@ export const connectorsApi = {
   list: () => request<Connector[]>("/api/connectors"),
   create: (input: Pick<Connector, "name" | "type" | "region" | "owners">) =>
     post<Connector>("/api/connectors", input),
+  update: (id: string, input: ConnectorInput) =>
+    request<Connector>(`/api/connectors/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    }),
   remove: (id: string) => request<void>(`/api/connectors/${id}`, { method: "DELETE" }),
 };
