@@ -1,4 +1,5 @@
-import type { User } from "@/features/auth/types";
+import type { User } from "@/features/auth";
+import type { Connector } from "@/features/connectors";
 
 /** Seeded accounts. Passwords live here because there is no backend; in
  *  production these are Argon2id hashes the client never sees. */
@@ -29,21 +30,6 @@ export const SEED_USERS: readonly SeedUser[] = [
     password: "Password123!",
   },
 ];
-
-export type ConnectorType = "AWS" | "Azure" | "GCP";
-export type ConnectorStatus = "connected" | "degraded" | "provisioning";
-
-export interface Connector {
-  id: string;
-  name: string;
-  type: ConnectorType;
-  region: string;
-  status: ConnectorStatus;
-  /** Display names only. A real API would return ids the client resolves
-   *  separately; names are inlined here because there is no directory to
-   *  resolve against. */
-  owners: readonly string[];
-}
 
 export const SEED_CONNECTORS: readonly Connector[] = [
   {

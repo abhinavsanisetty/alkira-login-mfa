@@ -4,22 +4,15 @@ import { cn } from "@/lib/cn";
 import { inbox } from "@/mocks/inbox";
 
 /**
- * A stand-in for the channel a real code would arrive on.
+ * A stand-in for the channel a real code would arrive on, making the
+ * out-of-band boundary visible rather than asserted: the code lands somewhere
+ * other than the form, and a resend visibly supersedes the previous one.
+ * Swapping in a real mailer would not touch generation or verification. See
+ * DECISIONS.md §8.
  *
- * Its purpose is to make the out-of-band boundary visible rather than asserted:
- * the code arrives somewhere other than the form, and a resend visibly
- * supersedes the previous one. Replacing this with a real mailer would not touch
- * generation or verification. See DECISIONS.md §8.
- *
- * The live code is the active item in a list, so it is marked the way every
- * other active list item in the application is marked: a royal edge down the
- * left, not a filled background. Superseded codes keep the plain edge and go
- * grey and struck through, which makes "this one, not that one" readable at a
- * glance rather than something you have to reason about.
- *
- * The dashed border on the panel itself is the one place a dashed line appears,
- * and it is carrying meaning: this section is scaffolding and would not exist in
- * the shipped product.
+ * The live code takes the same royal left edge every other active list item
+ * uses. The dashed panel border is the only dashed line in the interface, and
+ * it means "scaffolding, not product".
  */
 export function MockInbox() {
   const messages = useSyncExternalStore(inbox.subscribe, inbox.snapshot);

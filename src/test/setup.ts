@@ -1,23 +1,19 @@
 import "@testing-library/jest-dom/vitest";
 
 import { cleanup } from "@testing-library/react";
-import { afterAll, afterEach, beforeAll, vi } from "vitest";
+import { afterAll, afterEach, beforeAll } from "vitest";
 
 import { resetMockState } from "@/mocks/handlers";
 import { server } from "@/mocks/server";
 
-/**
- * Test environment setup, run once before every test file.
- */
-
-// The same handlers that serve the browser serve the tests, so tests exercise
-// the real fetch path rather than a stubbed service.
+// The same handlers serve the browser and the tests, so tests exercise the
+// real fetch path rather than a stubbed service. onUnhandledRequest: "error"
+// means an unmocked call fails loudly instead of hitting the network.
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 afterAll(() => server.close());
 
-// Unmount anything left behind by the previous test. Without this, queries in
-// one test can match elements rendered by an earlier one, which produces
-// failures that only appear when tests run together and pass in isolation.
+// Without this, queries can match elements from an earlier test — failures
+// that appear only when tests run together and pass in isolation.
 afterEach(() => {
   cleanup();
   server.resetHandlers();
@@ -25,24 +21,3 @@ afterEach(() => {
   sessionStorage.clear();
 });
 
-beforeAll(() => {
-  // jsdom does not implement matchMedia. The theme module calls it to resolve
-  // the "system" choice, so without a stub every test that mounts a themed tree
-  // throws. Reporting no dark-mode preference is the right default for tests:
-  // it is deterministic and does not depend on the machine running them.
-  if (!window.matchMedia) {
-    Object.defineProperty(window, "matchMedia", {
-      writable: true,
-      value: (query: string) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-      }),
-    });
-  }
-});

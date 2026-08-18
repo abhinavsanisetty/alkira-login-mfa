@@ -6,20 +6,13 @@ import { Button } from "@/components/ui/Button";
 import { useAuth, useCurrentUser } from "@/features/auth";
 
 /**
- * The signed-in shell.
+ * The signed-in shell. The header is a solid band, flat edge to edge, marking
+ * the protected side of the application at a glance.
  *
- * The header is a solid royal fill, flat edge to edge, with no blend into the
- * page beneath it. This is where the accent stops being an accent: a band of
- * full-strength blue against off white is what gives the palette its weight,
- * and it does the navigational job of marking the protected side of the
- * application at a glance. The unauthenticated shell is plain off white for
- * exactly that contrast.
- *
- * The role badge is not decoration. Actions the current role cannot perform are
- * hidden, and hiding without stating the role reads as a bug rather than a
- * policy. See DECISIONS.md §10. Inside the royal band it is drawn as an outline
- * mark rather than a tinted badge, since a *-soft ground is built to sit on
- * paper and turns muddy on saturated blue.
+ * The role is not decoration: actions the current role cannot perform are
+ * hidden, and hiding without stating the role reads as a bug. See DECISIONS.md
+ * §10. It is drawn as plain text here rather than as a Badge, whose *-soft
+ * grounds are built to sit on paper and turn muddy on a saturated band.
  */
 export function AppLayout() {
   const user = useCurrentUser();

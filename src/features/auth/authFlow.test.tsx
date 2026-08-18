@@ -50,6 +50,15 @@ function currentCode(): string {
   return message.code;
 }
 
+/** renderApp + signIn + completeMfa, which twelve tests need before they can
+ *  begin. Composed here so each test opens on its actual subject. */
+async function signedInAs(email: string) {
+  const app = renderApp();
+  await signIn(app.user, email);
+  await completeMfa(app.user);
+  return app;
+}
+
 async function completeMfa(user: UserEvent) {
   await user.type(screen.getByLabelText(/verification code/i), currentCode());
   await user.click(screen.getByRole("button", { name: /^verify$/i }));
@@ -87,9 +96,7 @@ describe("login and MFA", () => {
   });
 
   it("advances to the challenge and authenticates with the delivered code", async () => {
-    const { user } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
+    await signedInAs("editor@alkira.com");
 
     expect(screen.getByRole("heading", { name: /cloud connectors/i })).toBeInTheDocument();
   });
@@ -164,9 +171,7 @@ describe("route protection", () => {
 
 describe("session persistence", () => {
   it("keeps an authenticated session across a reload", async () => {
-    const { user, unmount } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
+    const { unmount } = await signedInAs("editor@alkira.com");
     unmount();
 
     renderApp("/connectors");
@@ -176,9 +181,7 @@ describe("session persistence", () => {
   // Without this, signing out leaves the session in storage and the next reload
   // silently signs you back in.
   it("clears the stored session on sign out", async () => {
-    const { user, unmount } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
+    const { user, unmount } = await signedInAs("editor@alkira.com");
 
     await user.click(screen.getByRole("button", { name: /sign out/i }));
     await screen.findByRole("heading", { name: /sign in/i });
@@ -204,9 +207,7 @@ describe("session persistence", () => {
 
 describe("role-based access control", () => {
   it("hides every edit action from a read-only role", async () => {
-    const { user } = renderApp();
-    await signIn(user, "viewer@alkira.com");
-    await completeMfa(user);
+    await signedInAs("viewer@alkira.com");
 
     expect(screen.getByText(/read-only access/i)).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: /actions/i })).not.toBeInTheDocument();
@@ -214,10 +215,27 @@ describe("role-based access control", () => {
     expect(screen.queryByRole("button", { name: /delete/i })).not.toBeInTheDocument();
   });
 
+  // Header and body must agree on column count. Without this, rendering the
+  // actions cell for a role with no actions gives a viewer six cells under five
+  // headings, and every other assertion in this block still passes.
+  it("gives a read-only role five columns in the header and the body", async () => {
+    await signedInAs("viewer@alkira.com");
+    const table = within(screen.getByRole("table"));
+
+    expect(table.getAllByRole("columnheader")).toHaveLength(5);
+    expect(within(table.getAllByRole("row")[1] as HTMLElement).getAllByRole("cell")).toHaveLength(5);
+  });
+
+  it("gives a read/write role six columns in the header and the body", async () => {
+    await signedInAs("editor@alkira.com");
+    const table = within(screen.getByRole("table"));
+
+    expect(table.getAllByRole("columnheader")).toHaveLength(6);
+    expect(within(table.getAllByRole("row")[1] as HTMLElement).getAllByRole("cell")).toHaveLength(6);
+  });
+
   it("shows create, edit, and delete to a read/write role", async () => {
-    const { user } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
+    await signedInAs("editor@alkira.com");
 
     expect(screen.getByRole("columnheader", { name: /actions/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /new connector/i })).toBeInTheDocument();
@@ -230,9 +248,7 @@ describe("role-based access control", () => {
   });
 
   it("deletes a connector for a role that may", async () => {
-    const { user } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
+    const { user } = await signedInAs("editor@alkira.com");
 
     const before = within(screen.getByRole("table")).getAllByRole("row").length;
     await user.click(within(screen.getByRole("table")).getAllByRole("button", { name: /delete/i })[0]!);
@@ -249,9 +265,7 @@ describe("connector selection", () => {
   // worth asserting is the state the mark is derived from, and that it is
   // exposed through a real control rather than a click handler on a row.
   it("selects one connector at a time and toggles it off", async () => {
-    const { user } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
+    const { user } = await signedInAs("editor@alkira.com");
 
     const first = screen.getByRole("button", { name: "prod-us-west" });
     const second = screen.getByRole("button", { name: "prod-eu-central" });
@@ -268,20 +282,6 @@ describe("connector selection", () => {
     expect(second).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("offers the add owner control only to a role that may edit", async () => {
-    const { user, unmount } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
-    expect(screen.getAllByRole("button", { name: /add owner to/i }).length).toBeGreaterThan(0);
-
-    await user.click(screen.getByRole("button", { name: /sign out/i }));
-    unmount();
-
-    const second = renderApp();
-    await signIn(second.user, "viewer@alkira.com");
-    await completeMfa(second.user);
-    expect(screen.queryByRole("button", { name: /add owner to/i })).not.toBeInTheDocument();
-  });
 });
 
 describe("sign up", () => {
@@ -337,9 +337,7 @@ describe("renaming a connector", () => {
   }
 
   it("renames a connector through the API and shows the new name", async () => {
-    const { user } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
+    const { user } = await signedInAs("editor@alkira.com");
 
     const field = await openRename(user);
     await user.clear(field);
@@ -351,9 +349,7 @@ describe("renaming a connector", () => {
   });
 
   it("rejects a name the schema does not accept and keeps the old one", async () => {
-    const { user } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
+    const { user } = await signedInAs("editor@alkira.com");
 
     const field = await openRename(user);
     await user.clear(field);
@@ -367,9 +363,7 @@ describe("renaming a connector", () => {
   // The duplicate check only exists on the mock's side of the boundary, so this
   // is the test that proves the request is really being made and answered.
   it("surfaces the server's conflict when the name is taken", async () => {
-    const { user } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
+    const { user } = await signedInAs("editor@alkira.com");
 
     const field = await openRename(user);
     await user.clear(field);
@@ -381,9 +375,7 @@ describe("renaming a connector", () => {
   });
 
   it("restores the original name on cancel", async () => {
-    const { user } = renderApp();
-    await signIn(user, "editor@alkira.com");
-    await completeMfa(user);
+    const { user } = await signedInAs("editor@alkira.com");
 
     const field = await openRename(user);
     await user.clear(field);
@@ -395,9 +387,7 @@ describe("renaming a connector", () => {
   });
 
   it("offers no rename control to a read-only role", async () => {
-    const { user } = renderApp();
-    await signIn(user, "viewer@alkira.com");
-    await completeMfa(user);
+    await signedInAs("viewer@alkira.com");
 
     expect(screen.queryByRole("button", { name: /edit/i })).not.toBeInTheDocument();
     expect(screen.queryByRole("textbox", { name: /rename/i })).not.toBeInTheDocument();

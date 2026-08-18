@@ -1,53 +1,34 @@
 /* ---------------------------------------------------------------------------
    Design tokens.
 
-   Every colour, radius, and type size in the application resolves through this
-   file. Feature code never writes a hex value, a px radius, or a raw font size.
+   Every colour, radius, and type size resolves through this file; feature code
+   never writes a hex value, a px radius, or a raw font size.
+
+   :root holds the complete light palette; [data-theme="dark"] redefines only
+   those variables. @theme inline then maps Tailwind utility names onto them —
+   and "inline" is load-bearing. Without it Tailwind bakes the resolved value
+   into each utility at build time, freezing the light palette and making the
+   theme toggle a no-op. With it, bg-paper compiles to var(--paper).
 
    The palette is off white, royal blue, and a medium neutral grey, finished
-   matte. Flat pigment, no gloss, no glass, no blur. Depth comes from hairline
-   rules and small tonal steps between surfaces, never from a gradient or a
-   shadow. Royal blue is a primary here, not a garnish: it fills the application
-   header outright and carries every action, focus ring, and selection mark.
-
-   Structure, and why it is in this order:
-
-     1. :root defines the complete LIGHT palette as plain CSS variables.
-     2. Dark redefines ONLY those variables, in two places: a
-        prefers-colour-scheme block for people who never touch the toggle, and a
-        [data-theme="dark"] block so an explicit choice wins over the OS.
-     3. @theme inline maps Tailwind utility names onto those variables.
-
-   The "inline" keyword matters. Without it Tailwind copies the resolved value
-   into the utility at build time, which freezes the light palette and makes the
-   theme toggle a no-op. With it, bg-paper compiles to var(--paper) and follows
-   whatever the cascade currently says.
+   matte: no gradients, no glass, no shadows. Depth comes from hairline rules
+   and small tonal steps.
 --------------------------------------------------------------------------- */
 
 @import "tailwindcss";
 
-/* Two faces, with a clear division of labour.
+/* Two faces with different jobs. Cormorant is the primary and carries identity:
+   page titles, the wordmark, card titles, connector names. IBM Plex Sans is the
+   secondary and does the interface work: labels, buttons, badges, metadata.
+   Cormorant is a Garamond revival with heavy stroke contrast, which is what
+   makes it good at display sizes and unreadable at 13px, so it is never asked
+   to do the second job.
 
-   Cormorant is the primary and carries the identity: page titles, the wordmark,
-   card header titles, connector names. It is a Garamond revival with generous
-   stroke contrast, which is exactly what makes it good at display sizes and bad
-   at 13px, so it is never asked to do the second job.
+   IBM Plex Mono has one job: codes and region identifiers, where proportional
+   digits would make a field reflow as it is typed.
 
-   IBM Plex Sans is the secondary and does the work: form labels, hints, errors,
-   buttons, badges, table cells, column headers, metadata. This is the classic
-   serif-display against sans-interface pairing, and the point of it is that the
-   two faces are doing different things rather than decorating each other. Plex
-   also shares a skeleton with Plex Mono, so the third face never looks like a
-   stranger.
-
-   IBM Plex Mono has one job: verification codes and region identifiers, where
-   proportional digits would make a field reflow as it is typed. Neither of the
-   other two has tabular figures.
-
-   Self-hosted through @fontsource rather than a CDN link, so there is no
-   third-party request, no layout shift from a late-arriving face, and no silent
-   fallback if the network is unavailable. Only the weights actually used are
-   imported. */
+   Self-hosted via @fontsource, so there is no third-party request and no layout
+   shift from a late-arriving face. */
 @import "@fontsource/cormorant/500.css";
 @import "@fontsource/cormorant/600.css";
 @import "@fontsource/cormorant/700.css";
@@ -57,12 +38,10 @@
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
 
-/* Dark is driven by the stamped attribute and nothing else.
-
-   There is no prefers-color-scheme branch, because there is no "follow the
-   system" option in the toggle. index.html always writes data-theme before
-   first paint, so the un-stamped state never reaches a user. See lib/theme.ts
-   for why that trade was made. */
+/* Dark is driven by the stamped attribute alone. There is no
+   prefers-color-scheme branch because there is no "follow the system" option:
+   index.html always writes data-theme before first paint, so the un-stamped
+   state never reaches a user. See lib/theme.ts. */
 @custom-variant dark {
   &:where([data-theme="dark"], [data-theme="dark"] *) {
     @slot;
@@ -76,21 +55,17 @@
 :root {
   color-scheme: light;
 
-  /* Off white, in three steps. Neutral rather than cream: a warm paper would
-     pull the palette toward the beige-and-terracotta look and read as soft.
-     Three steps is enough to build any layout without shadows, which is the
-     whole point of having them. */
+  /* Off white in three steps, neutral rather than cream. Three is enough to
+     build any layout without shadows, which is the point of having them. */
   --paper: #f1f1ee;
   --surface: #fafaf8;
   --surface-sunk: #e6e6e1;
 
-  /* Text. Near-black with a cool cast rather than pure #000, which reads harsh
-     against off white. */
+  /* Near-black with a cool cast; pure #000 reads harsh against off white. */
   --ink: #1b1e24;
   --ink-muted: #4e535c;
 
-  /* The secondary supporting colour: a true medium grey, no warm cast. Carries
-     labels, metadata, and every piece of text one level below the content. */
+  /* Secondary support: a true medium grey carrying labels and metadata. */
   --gray: #767b84;
   --gray-soft: #e8e8e5;
 
@@ -98,28 +73,24 @@
   --rule: #d9d9d3;
   --rule-strong: #bcbcb5;
 
-  /* Royal blue. Rich and saturated enough to hold a solid header at full
-     strength, stopping short of the electric #4169E1 that reads as a link
-     colour rather than a brand. */
+  /* Rich enough to hold a solid header, short of the electric #4169E1 that
+     reads as a link colour rather than a brand. */
   --royal: #23408f;
   --royal-hover: #1a3072;
   --royal-soft: #e2e6f2;
   --royal-line: #b3bedd;
   --royal-ink: #f7f8fb;
 
-  /* The application header fill.
-
-     Split from --royal because the two have opposite jobs across themes. The
-     accent has to stay legible *as text and small marks*, so in dark mode it is
-     lifted to a pale periwinkle. A full-width band painted that colour would
-     then become the brightest object on a near-black page, which is exactly
-     backwards. The band therefore darkens where the accent lightens. */
+  /* The header fill, split from --royal because the two move in opposite
+     directions across themes: the accent lightens in dark mode to stay legible
+     as text, but a full-width band painted that colour would be the brightest
+     object on a near-black page. The band darkens instead. */
   --band: #23408f;
   --band-ink: #f7f8fb;
   --band-line: #35509b;
 
-  /* Status. Each is a tinted ground with a darker text of the same hue, per the
-     badge rule. Muted deliberately so nothing in a list reads as neon. */
+  /* Tinted ground with darker text of the same hue. Muted so nothing in a list
+     reads as neon. */
   --ok: #3f6549;
   --ok-soft: #dfe7e0;
   --warn: #7f6026;
@@ -133,10 +104,9 @@
 /* --------------------------------------------------------------------------
    Dark palette
 
-   Not an inversion. Royal blue is lifted well above its light value, because
-   #23408f on a dark ground is nearly unreadable, and the greys are re-picked
-   rather than flipped so the tonal steps stay even. Still matte: no glow, no
-   saturation spike. Reached only by an explicit choice in the toggle.
+   Not an inversion: royal is lifted well above its light value because #23408f
+   on a dark ground is unreadable, and the greys are re-picked rather than
+   flipped so the tonal steps stay even. Reached only by an explicit choice.
    -------------------------------------------------------------------------- */
 
 :root[data-theme="dark"] {
@@ -215,17 +185,10 @@
 }
 
 @theme {
-  /* Every radius token collapses to the same 3px.
-
-     This is deliberate and structural rather than a matter of discipline. The
-     brief was one consistent, very slightly rounded corner on everything:
-     buttons, inputs, cards, badges, avatars excepted. Rather than trusting
-     everyone to reach for the same utility, the scale itself has been
-     flattened. rounded-sm, rounded-lg, and rounded-3xl now all produce 3px.
-     Inconsistency is not available.
-
-     rounded-full is untouched, and is used in exactly one place: avatars, which
-     the brief asks for as circles. */
+  /* Every radius token collapses to 3px, so rounded-sm and rounded-3xl produce
+     the same corner. The consistency is structural rather than a matter of
+     discipline: an inconsistent radius is not available to write.
+     rounded-full is untouched, and is used only by avatars. */
   --radius-xs: 3px;
   --radius-sm: 3px;
   --radius-md: 3px;
@@ -235,16 +198,9 @@
   --radius-3xl: 3px;
   --radius-4xl: 3px;
 
-  /* Type scale.
-
-     Sized for IBM Plex Sans, which carries every step from --text-xs to
-     --text-lg. Those are ordinary interface sizes: a sans with a large x-height
-     stays legible at 13px in a way Cormorant does not, which is the whole
-     reason the second face exists.
-
-     The three display steps are Cormorant's, and they start well above where
-     the interface steps stop. There is no overlap between the two ranges, so
-     the faces never appear at the same size and never compete. */
+  /* Interface steps (2xs to lg) are Plex Sans; display steps (xl to 3xl) are
+     Cormorant. The ranges do not overlap, so the two faces never appear at the
+     same size and never compete. */
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1rem;
   --text-xs: 0.75rem;
@@ -264,16 +220,13 @@
   --text-3xl: 3rem;
   --text-3xl--line-height: 3.25rem;
 
-  /* Motion exists for exactly one reason: telling you something is loading.
-     Nothing moves on hover, nothing eases between states, nothing animates on
-     arrival. A skeleton pulses and a spinner turns, and that is the complete
-     inventory. */
+  /* Motion exists only to say "loading". A skeleton pulses and a spinner turns;
+     that is the complete inventory. */
   --animate-pulse-flat: pulse-flat 1.6s ease-in-out infinite;
   --animate-spin-flat: spin-flat 700ms linear infinite;
 }
 
-/* Skeleton loaders pulse opacity rather than sweeping a highlight across
-   themselves, because a shimmer needs a gradient and gradients are out. */
+/* Opacity rather than a sweeping highlight: a shimmer needs a gradient. */
 @keyframes pulse-flat {
   0%,
   100% {
@@ -304,8 +257,8 @@
   }
 
   body {
-    /* Painted from a token rather than left transparent, so the page never
-       borrows a background from whatever is behind it. */
+    /* Painted from a token, never transparent, so the page cannot borrow a
+       background from whatever is behind it. */
     background-color: var(--paper);
     color: var(--ink);
     font-family: var(--font-sans);
@@ -316,10 +269,8 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Headings are Cormorant, and they are the main place it appears. At display
-     sizes it has enough stroke contrast to hold its own at 600 without going to
-     700. Hierarchy still comes from weight and size rather than colour: the
-     change of face reinforces it, it does not replace it. */
+  /* Hierarchy comes from weight and size; the change of face reinforces it
+     rather than replacing it. */
   h1,
   h2,
   h3 {
@@ -329,9 +280,7 @@
     text-wrap: balance;
   }
 
-  /* Focus is instant. It is a state change, not an animation: the ring simply
-     exists or does not. Rendered with outline rather than box-shadow so it
-     never gets clipped by an overflow container. */
+  /* outline rather than box-shadow, so an overflow container cannot clip it. */
   :focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 2px;
@@ -343,15 +292,13 @@
     color: var(--ink);
   }
 
-  /* Digits that sit in columns must line up. Applies to the connector list,
-     codes, and attempt counters. */
+  /* Digits in columns must line up. */
   time,
   [data-numeric] {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Honour the system preference. Loading indicators still change state, they
-     just stop moving, so nothing becomes invisible. */
+  /* Loading indicators still change state, they just stop moving. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

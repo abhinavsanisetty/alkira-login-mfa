@@ -11,17 +11,10 @@
     <title>Alkira Console</title>
     <script>
       /*
-        Stamps the theme before first paint.
-
-        This has to be inline and synchronous. If the attribute were applied
-        from React after hydration, every dark-mode user would see one frame of
-        the light palette first, which is the flash-of-wrong-theme problem.
-        Reading localStorage and stamping the attribute costs under a
-        millisecond and happens before the body renders.
-
-        The attribute is always written, never omitted. There is no
-        "follow the system" state, so an un-stamped document would be a state
-        the stylesheet has no rule for.
+        Stamps the theme before first paint. Applying it from React after
+        hydration would show every dark-mode user one frame of the light
+        palette. Always written, never omitted: there is no "follow the system"
+        state for the stylesheet to have a rule for.
       */
       (function () {
         var choice = "light";
@@ -29,8 +22,7 @@
           var stored = localStorage.getItem("alkira.theme");
           if (stored === "light" || stored === "dark") choice = stored;
         } catch (_) {
-          /* Private browsing can throw on storage access. The default is a
-             perfectly good fallback, so there is nothing to handle. */
+          /* Private browsing can throw; the default is a fine fallback. */
         }
         document.documentElement.setAttribute("data-theme", choice);
       })();

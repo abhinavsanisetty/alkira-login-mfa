@@ -6,30 +6,21 @@ import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/cn";
 
 /**
- * Button styles, expressed as a typed variant API.
+ * Button styles as a typed variant API: call sites write `variant="danger"`,
+ * not Tailwind classes, and TypeScript rejects a variant that does not exist.
  *
- * The point of cva here is that call sites never write Tailwind classes. They
- * write `<Button variant="danger" size="sm">`, and TypeScript rejects a variant
- * that does not exist. The utility classes stay in this file, which is what
- * keeps them out of every feature component that uses buttons.
- *
- * Note what is absent: any transition or duration utility. Hover swaps the
- * colour on the same frame the pointer arrives, with nothing easing between the
- * two states. That constraint is enforced by never introducing a duration in
- * this file rather than by remembering not to.
- *
- * Labels are Plex Sans at 600. Buttons are interface furniture rather than
- * display type, and a serif label on a solid royal ground reads as a pull quote
- * with a box round it.
+ * Note what is absent: any transition or duration utility. Hover swaps colour
+ * on the frame the pointer arrives. The constraint holds because there is no
+ * duration in this file to copy.
  */
 const button = cva(
   [
     "inline-flex items-center justify-center gap-2",
     "rounded-sm border font-semibold",
     "select-none whitespace-nowrap",
-    // A disabled button in this application always means "busy" or "nothing to
-    // submit yet". It never means "you lack permission", because permission is
-    // expressed by not rendering the control at all. See DECISIONS.md 10.
+    // Disabled here always means "busy" or "nothing to submit yet", never
+    // "you lack permission" — that is expressed by not rendering the control
+    // at all. See DECISIONS.md §10.
     "disabled:cursor-not-allowed",
   ],
   {
@@ -60,14 +51,10 @@ const button = cva(
         true: "w-full",
         false: "",
       },
-      /* Declared last so its classes land after the variant's in the generated
-         string, which lets twMerge drop the conflicting colours rather than
-         relying on stylesheet order.
-
-         Unavailable is a flat token state rather than reduced opacity. Fading a
-         saturated royal over off white produces a washed lavender, which reads
-         as a different colour rather than as the same button turned off, and
-         lands squarely in the pastel register the palette is meant to avoid. */
+      /* Declared last so twMerge resolves the colour conflict in its favour.
+         A flat token rather than reduced opacity: fading royal over off white
+         gives a washed lavender that reads as a different colour, not as the
+         same button turned off. */
       unavailable: {
         true: "border-rule bg-sunk text-gray",
         false: "",
@@ -86,14 +73,10 @@ export interface ButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className">,
     VariantProps<typeof button> {
   className?: string;
-  /** Thin-line glyph set before the label. Decorative: the label carries the
-   *  meaning, so this is never the only thing identifying the control. */
+  /** Decorative glyph before the label, which always carries the meaning. */
   icon?: IconName;
-  /** Shows a spinner, disables interaction, and marks the control busy for
-   *  assistive technology. */
   loading?: boolean;
-  /** Label swapped in while loading. Naming the operation in progress
-   *  ("Signing in") is more useful than a bare spinner. */
+  /** Swapped in while loading: "Signing in" beats a bare spinner. */
   loadingLabel?: string;
   children?: ReactNode;
 }
@@ -113,12 +96,11 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      // Defaulting to type="button" rather than inheriting the HTML default of
-      // "submit" prevents an unrelated button inside a form from submitting it.
-      // Forms opt in explicitly with type="submit".
+      // Defaults to "button", not the HTML default of "submit", so an
+      // unrelated button inside a form cannot submit it.
       type={type}
-      // A loading button is unclickable as well as disabled, so a double submit
-      // cannot fire a second request while the first is in flight.
+      // Unclickable while loading, so a double submit cannot fire a second
+      // request while the first is in flight.
       disabled={disabled === true || loading}
       aria-busy={loading || undefined}
       className={cn(
@@ -126,10 +108,8 @@ export function Button({
           variant,
           size,
           block,
-          // Loading is deliberately excluded. A button mid-request keeps its
-          // colour, because the operation is still live: the spinner carries
-          // the "in progress" signal on its own. Only a genuinely inert control
-          // goes flat.
+          // A button mid-request keeps its colour: the operation is live and
+          // the spinner already says so. Only an inert control goes flat.
           unavailable: disabled === true && !loading,
         }),
         className,

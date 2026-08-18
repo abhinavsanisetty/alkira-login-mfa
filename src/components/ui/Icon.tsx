@@ -1,23 +1,13 @@
 import { cn } from "@/lib/cn";
 
 /**
- * The complete icon set.
+ * The complete icon set: hand-drawn on a 24 unit grid rather than pulled from a
+ * library. A dependency is a lot of weight for ten glyphs, and a closed set is
+ * what keeps a filled or two-tone icon from wandering in — there is nowhere to
+ * import one from.
  *
- * Hand-drawn on a 24 unit grid rather than pulled from a library, for three
- * reasons: an icon dependency is a lot of weight for eleven glyphs, every glyph
- * here can be held to the same 1.5 stroke and the same rounded joins, and the
- * set stays closed. Nobody can casually introduce a filled or two-tone icon,
- * because there is nowhere to import one from.
- *
- * Every glyph is monochrome and inherits currentColor, so an icon takes the
- * colour of whatever text it sits beside. In practice that means grey for
- * metadata and royal blue for actions, decided by the parent rather than baked
- * in here. No fills, no gradients, no skeuomorphism, and no emoji anywhere in
- * the interface.
- *
- * Icons are decorative by default and hidden from assistive technology. Every
- * control that uses one also carries a text label or an aria-label, so nothing
- * here is load-bearing for meaning.
+ * Every glyph is monochrome, inherits currentColor, and is decorative: each
+ * control that uses one carries its own text or aria-label.
  */
 
 const PATHS = {
@@ -60,12 +50,6 @@ const PATHS = {
     </>
   ),
   moon: <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />,
-  monitor: (
-    <>
-      <rect x="3" y="4.5" width="18" height="12" rx="1.5" />
-      <path d="M9 20h6M12 16.5V20" />
-    </>
-  ),
   alert: (
     <>
       <circle cx="12" cy="12" r="8.5" />
@@ -76,15 +60,7 @@ const PATHS = {
 
 export type IconName = keyof typeof PATHS;
 
-interface IconProps {
-  name: IconName;
-  className?: string;
-  /** Supply only when the icon is the sole content of a control and no text
-   *  label accompanies it. Anything else stays decorative. */
-  label?: string;
-}
-
-export function Icon({ name, className, label }: IconProps) {
+export function Icon({ name, className }: { name: IconName; className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -94,9 +70,7 @@ export function Icon({ name, className, label }: IconProps) {
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      role={label ? "img" : undefined}
-      aria-label={label}
-      aria-hidden={label ? undefined : true}
+      aria-hidden="true"
     >
       {PATHS[name]}
     </svg>

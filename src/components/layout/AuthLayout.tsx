@@ -2,23 +2,9 @@ import { Outlet } from "react-router-dom";
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
-/**
- * The unauthenticated shell.
- *
- * Deliberately plain off white, with the wordmark set in royal rather than the
- * bar being filled with it. Crossing the second factor swaps this for the solid
- * band of AppLayout, so the palette itself marks the boundary: the blue arrives
- * when the session does.
- *
- * The bar is taller here than in the signed-in shell and the wordmark is set
- * larger, because this is the first screen anyone sees and it is carrying the
- * identity rather than navigation. Once you are inside, the header is a tool
- * strip and gets out of the way.
- *
- * Height is set explicitly rather than left to padding plus whatever the tallest
- * child happens to be, so the bar keeps its proportion if the wordmark or the
- * toggle changes size later.
- */
+/** Unauthenticated shell: plain paper, with the royal band arriving only once
+ *  the session does (see AppLayout). The bar is taller and the wordmark larger
+ *  than inside, because this screen carries the identity rather than navigation. */
 export function AuthLayout() {
   return (
     <div className="flex min-h-dvh flex-col bg-paper">

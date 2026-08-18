@@ -12,7 +12,9 @@ import {
 import type { ApiErrorCode } from "@/lib/api";
 import { connectorSchema, loginSchema, mfaSchema } from "@/lib/schemas";
 
-import { SEED_CONNECTORS, SEED_USERS, type Connector } from "./data";
+import type { Connector } from "@/features/connectors";
+
+import { SEED_CONNECTORS, SEED_USERS } from "./data";
 import { inbox } from "./inbox";
 
 interface ChallengeRecord {

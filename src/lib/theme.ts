@@ -17,7 +17,7 @@ import { THEME_STORAGE_KEY } from "@/lib/constants";
 
 export type ThemeChoice = "light" | "dark";
 
-export const DEFAULT_THEME: ThemeChoice = "light";
+const DEFAULT_THEME: ThemeChoice = "light";
 
 function isThemeChoice(value: unknown): value is ThemeChoice {
   return value === "light" || value === "dark";

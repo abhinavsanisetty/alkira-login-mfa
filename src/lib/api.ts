@@ -1,16 +1,12 @@
 import type { AuthErrorCode, Challenge, User } from "@/features/auth";
-import type { Connector } from "@/mocks/data";
+import type { Connector } from "@/features/connectors";
 import type { ConnectorInput, LoginInput } from "@/lib/schemas";
 
 /**
- * Every code the API can return, which is a superset of the auth codes.
- *
- * The connector endpoints answer with VALIDATION, NOT_FOUND, and CONFLICT, and
- * none of those belong in AuthErrorCode: that union is the auth domain's
- * vocabulary, and widening it so an unrelated feature can reuse the transport
- * would let a connector conflict flow into the auth reducer unchallenged. The
- * transport gets its own superset instead, and crossing back into the auth
- * domain is a narrowing step the compiler enforces.
+ * A superset of the auth codes. The connector endpoints answer with VALIDATION,
+ * NOT_FOUND, and CONFLICT, and none of those belong in AuthErrorCode: widening
+ * that union would let a connector conflict flow into the auth reducer
+ * unchallenged. Crossing back is a narrowing the compiler enforces.
  */
 export type ApiErrorCode = AuthErrorCode | "VALIDATION" | "NOT_FOUND" | "CONFLICT";
 

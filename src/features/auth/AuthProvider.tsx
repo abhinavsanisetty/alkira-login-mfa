@@ -11,9 +11,8 @@ import { authReducer, initialAuthState } from "./authReducer";
 import { AuthContext } from "./context";
 import type { AuthError, AuthState, User } from "./types";
 
-/** sessionStorage is synchronous, so the correct state exists before first
- *  paint and there is no "initializing" variant to render around. Only the
- *  authenticated state is ever stored; a live challenge never is. */
+/** sessionStorage is synchronous, so correct state exists before first paint
+ *  and there is no "initializing" variant to render around. */
 function rehydrate(): AuthState {
   try {
     const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
@@ -26,10 +25,8 @@ function rehydrate(): AuthState {
   }
 }
 
-/** The auth endpoints only ever answer with auth codes, but the transport can
- *  carry connector codes too, so crossing back into this domain is a narrowing
- *  rather than a cast. Anything unrecognised becomes NETWORK, which is the
- *  honest reading of "the server said something this domain does not model". */
+/** Narrow the transport union back to the auth domain; anything this domain
+ *  does not model becomes NETWORK. See lib/api.ts. */
 const AUTH_CODES: ReadonlySet<ApiErrorCode> = new Set<ApiErrorCode>([
   "INVALID_CREDENTIALS",
   "OTP_INVALID",
@@ -84,8 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         dispatch({
           type: "MFA_FAILED",
           error: toAuthError(error),
-          // No count from the server means the challenge is gone, so default to
-          // destroying it rather than leaving a dead one on screen.
+          // No count means the challenge is gone, so destroy it rather than
+          // leave a dead one on screen.
           attemptsRemaining: error instanceof ApiError ? (error.attemptsRemaining ?? 0) : 0,
         });
       } finally {
