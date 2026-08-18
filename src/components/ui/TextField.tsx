@@ -58,7 +58,7 @@ export function TextField({
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
       <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-sm font-medium text-ink">
+        <label htmlFor={id} className="text-sm font-bold text-ink">
           {label}
         </label>
         {action}
@@ -67,13 +67,13 @@ export function TextField({
       <Input id={id} ref={ref} invalid={Boolean(error)} aria-describedby={describedBy} {...rest} />
 
       {hint && !error ? (
-        <p id={hintId} className="text-xs text-gray">
+        <p id={hintId} className="text-xs font-normal text-gray">
           {hint}
         </p>
       ) : null}
 
       {error ? (
-        <p id={errorId} role="alert" className="text-xs font-medium text-danger">
+        <p id={errorId} role="alert" className="text-xs font-bold text-danger">
           {error}
         </p>
       ) : null}

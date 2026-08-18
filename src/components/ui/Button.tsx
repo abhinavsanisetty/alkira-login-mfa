@@ -1,6 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/cn";
 
@@ -10,16 +11,22 @@ import { cn } from "@/lib/cn";
  * The point of cva here is that call sites never write Tailwind classes. They
  * write `<Button variant="danger" size="sm">`, and TypeScript rejects a variant
  * that does not exist. The utility classes stay in this file, which is what
- * keeps them out of the forty feature components that use buttons.
+ * keeps them out of every feature component that uses buttons.
  *
- * Note what is absent: any transition utility. Hover changes colour instantly.
- * That is a deliberate constraint from the design brief, and it is enforced by
- * simply never introducing a duration here.
+ * Note what is absent: any transition or duration utility. Hover swaps the
+ * colour on the same frame the pointer arrives, with nothing easing between the
+ * two states. That constraint is enforced by never introducing a duration in
+ * this file rather than by remembering not to.
+ *
+ * Set at weight 700 with a little tracking. Cormorant at 600 is too fine to
+ * hold a solid royal ground at button size, and letting the label thin out on
+ * the primary action is the fastest way to make a serif interface look
+ * accidental rather than chosen.
  */
 const button = cva(
   [
     "inline-flex items-center justify-center gap-2",
-    "rounded-sm border font-medium",
+    "rounded-sm border font-bold tracking-[0.01em]",
     "select-none whitespace-nowrap",
     // A disabled button in this application always means "busy" or "nothing to
     // submit yet". It never means "you lack permission", because permission is
@@ -42,13 +49,13 @@ const button = cva(
           "not-disabled:hover:bg-sunk not-disabled:hover:text-ink",
         ],
         danger: [
-          "border-danger bg-danger-soft text-danger",
-          "not-disabled:hover:bg-danger not-disabled:hover:text-paper",
+          "border-danger/45 bg-danger-soft text-danger",
+          "not-disabled:hover:border-danger not-disabled:hover:bg-danger not-disabled:hover:text-paper",
         ],
       },
       size: {
         sm: "h-8 px-3 text-sm",
-        md: "h-10 px-4 text-base",
+        md: "h-11 px-5 text-base",
       },
       block: {
         true: "w-full",
@@ -59,9 +66,9 @@ const button = cva(
          relying on stylesheet order.
 
          Unavailable is a flat token state rather than reduced opacity. Fading a
-         saturated royal over off-white paper produces a washed lavender, which
-         reads as a different colour rather than as the same button turned off,
-         and undercuts the matte palette. */
+         saturated royal over off white produces a washed lavender, which reads
+         as a different colour rather than as the same button turned off, and
+         lands squarely in the pastel register the palette is meant to avoid. */
       unavailable: {
         true: "border-rule bg-sunk text-gray",
         false: "",
@@ -80,6 +87,9 @@ export interface ButtonProps
   extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className">,
     VariantProps<typeof button> {
   className?: string;
+  /** Thin-line glyph set before the label. Decorative: the label carries the
+   *  meaning, so this is never the only thing identifying the control. */
+  icon?: IconName;
   /** Shows a spinner, disables interaction, and marks the control busy for
    *  assistive technology. */
   loading?: boolean;
@@ -94,6 +104,7 @@ export function Button({
   variant,
   size,
   block,
+  icon,
   loading = false,
   loadingLabel,
   disabled,
@@ -126,7 +137,7 @@ export function Button({
       )}
       {...rest}
     >
-      {loading ? <Spinner /> : null}
+      {loading ? <Spinner /> : icon ? <Icon name={icon} /> : null}
       {loading && loadingLabel ? loadingLabel : children}
     </button>
   );

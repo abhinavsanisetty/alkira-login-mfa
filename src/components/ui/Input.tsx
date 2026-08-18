@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 const input = cva(
   [
     "w-full rounded-sm border bg-surface px-3 text-ink",
-    "placeholder:text-gray",
+    "font-semibold placeholder:font-normal placeholder:text-gray",
     "disabled:cursor-not-allowed disabled:bg-sunk disabled:text-gray",
     // Browsers apply their own yellow autofill background, which destroys the
     // matte palette. Repainting it from a token keeps autofilled fields looking
@@ -23,14 +23,16 @@ const input = cva(
         false: "border-rule focus:border-royal",
       },
       size: {
-        sm: "h-8 text-sm",
-        md: "h-10 text-base",
+        sm: "h-9 text-sm",
+        md: "h-11 text-base",
       },
       font: {
         sans: "font-sans",
         // Used for codes and identifiers, where fixed-width digits stop the
-        // field from reflowing as the user types.
-        mono: "font-mono tracking-wide",
+        // field from reflowing as the user types. Cormorant has no tabular
+        // figures, so this is a functional necessity rather than a style
+        // choice.
+        mono: "font-mono tracking-[0.25em] text-md",
       },
     },
     defaultVariants: { invalid: false, size: "md", font: "sans" },
@@ -48,7 +50,7 @@ export interface InputProps
  * A styled text input and nothing else.
  *
  * It has no opinion about labels, errors, or layout. Those belong to TextField,
- * which composes this. Keeping them separate means the OTP field and any future
+ * which composes this. Keeping them separate means the code field and any future
  * custom control can reuse the input styling without inheriting a label
  * structure that does not fit.
  */

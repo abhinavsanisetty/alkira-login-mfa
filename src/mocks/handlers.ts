@@ -171,9 +171,14 @@ export const handlers = [
 
   http.post("/api/connectors", async ({ request }) => {
     await latency();
-    const body = (await request.json()) as Omit<Connector, "id" | "status">;
+    const body = (await request.json()) as Omit<Connector, "id" | "status" | "owners"> &
+      Partial<Pick<Connector, "owners">>;
     const created: Connector = {
       ...body,
+      // A new connector starts owned by whoever created it. The client sends the
+      // name because there is no session on this side of the boundary; a real
+      // API would read it from the authenticated principal and ignore the body.
+      owners: body.owners ?? [],
       id: `cx_${Math.random().toString(36).slice(2, 8)}`,
       status: "provisioning",
     };

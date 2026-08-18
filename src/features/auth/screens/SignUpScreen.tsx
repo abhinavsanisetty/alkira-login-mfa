@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
+import { Card, CardBody, CardHeader } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
 import { TextField } from "@/components/ui/TextField";
 import { signUpSchema, type SignUpInput } from "@/lib/schemas";
 
@@ -21,54 +23,71 @@ export function SignUpScreen() {
 
   return (
     <div className="w-full max-w-sm">
-      <h1 className="text-2xl text-ink">Create an account</h1>
-      <p className="mt-1.5 text-sm text-muted">
+      <h1 className="text-2xl font-semibold text-ink">Create an account</h1>
+      <p className="mt-1 text-sm font-normal text-gray">
         The form validates for real. Registration itself is out of scope for this exercise.
       </p>
 
-      <form
-        onSubmit={handleSubmit(() => setSubmitted(true))}
-        className="mt-6 flex flex-col gap-4"
-        noValidate
-      >
-        {submitted ? (
-          <Alert tone="info" title="Validation passed">
-            Registration is not implemented in this exercise, so no account was created.
-          </Alert>
-        ) : null}
+      <Card className="mt-5">
+        <CardHeader>
+          <span className="flex items-center gap-2 text-sm font-bold text-ink">
+            <Icon name="mail" className="text-royal" />
+            Your details
+          </span>
+        </CardHeader>
 
-        <TextField label="Name" autoComplete="name" autoFocus error={errors.name?.message} {...register("name")} />
-        <TextField
-          label="Email"
-          type="email"
-          autoComplete="email"
-          error={errors.email?.message}
-          {...register("email")}
-        />
-        <TextField
-          label="Password"
-          type="password"
-          autoComplete="new-password"
-          hint="At least 8 characters"
-          error={errors.password?.message}
-          {...register("password")}
-        />
-        <TextField
-          label="Confirm password"
-          type="password"
-          autoComplete="new-password"
-          error={errors.confirmPassword?.message}
-          {...register("confirmPassword")}
-        />
+        <CardBody>
+          <form
+            onSubmit={handleSubmit(() => setSubmitted(true))}
+            className="flex flex-col gap-4"
+            noValidate
+          >
+            {submitted ? (
+              <Alert tone="info" title="Validation passed">
+                Registration is not implemented in this exercise, so no account was created.
+              </Alert>
+            ) : null}
 
-        <Button type="submit" variant="primary" block>
-          Create account
-        </Button>
-      </form>
+            <TextField
+              label="Name"
+              autoComplete="name"
+              autoFocus
+              error={errors.name?.message}
+              {...register("name")}
+            />
+            <TextField
+              label="Email"
+              type="email"
+              autoComplete="email"
+              error={errors.email?.message}
+              {...register("email")}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              autoComplete="new-password"
+              hint="At least 8 characters"
+              error={errors.password?.message}
+              {...register("password")}
+            />
+            <TextField
+              label="Confirm password"
+              type="password"
+              autoComplete="new-password"
+              error={errors.confirmPassword?.message}
+              {...register("confirmPassword")}
+            />
 
-      <p className="mt-5 text-sm text-muted">
+            <Button type="submit" variant="primary" block>
+              Create account
+            </Button>
+          </form>
+        </CardBody>
+      </Card>
+
+      <p className="mt-5 text-sm font-normal text-gray">
         Already have an account?{" "}
-        <Link to="/login" className="font-medium text-royal underline underline-offset-2">
+        <Link to="/login" className="font-bold text-royal underline underline-offset-2">
           Sign in
         </Link>
       </p>

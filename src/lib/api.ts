@@ -52,7 +52,7 @@ export const authApi = {
 
 export const connectorsApi = {
   list: () => request<Connector[]>("/api/connectors"),
-  create: (input: Pick<Connector, "name" | "type" | "region">) =>
+  create: (input: Pick<Connector, "name" | "type" | "region" | "owners">) =>
     post<Connector>("/api/connectors", input),
   remove: (id: string) => request<void>(`/api/connectors/${id}`, { method: "DELETE" }),
 };

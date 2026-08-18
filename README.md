@@ -17,6 +17,7 @@ trade-off was knowingly accepted.
 | State | React Context + `useReducer` | The reducer *is* the state machine — no dependency needed for four fields |
 | Routing | React Router 7 | Guards are layout routes, so protection is structural |
 | Styling | Tailwind v4 + `cva` + `tailwind-merge` | Tokens in `@theme`; utilities never leak into feature code |
+| Type | Cormorant, self-hosted | One face throughout; hierarchy comes from weight and size, not colour |
 | Forms | react-hook-form + Zod | One schema is the source of truth for the form *and* the mock API |
 | Mock API | MSW (Mock Service Worker) | The app makes real `fetch` calls; the mock lives outside `src/` |
 | Tests | Vitest + React Testing Library | Native to Vite; the same MSW handlers serve dev and tests |
@@ -83,7 +84,7 @@ the code is real: random generation, five-minute expiry, three attempts, single 
 1. Go to `http://localhost:5173` — you land on `/login`.
 2. Sign in as `editor@alkira.com` / `Password123!`.
 3. The MFA screen appears and a six-digit code arrives in the Dev inbox on the right.
-4. Enter it. You land on the protected connectors screen with an **Editor** badge in the header.
+4. Enter it. You land on the protected connectors screen, with your name and role in the header.
 
 **Validation and error handling**
 - Submit an empty form, or type `not-an-email` — errors appear on blur, then clear as you fix them.
@@ -105,10 +106,12 @@ the code is real: random generation, five-minute expiry, three attempts, single 
   deliberately never persisted.
 
 **Read-only vs read/write**
-- Sign in as `editor@alkira.com`: the table has an Actions column with Edit and Delete on each row,
-  and a **New connector** button.
-- Sign out, sign in as `viewer@alkira.com`: the Actions column is gone entirely, the create button
-  is absent, and the header badge reads **Viewer**.
+- Sign in as `editor@alkira.com`: the list has an Actions column with Edit and Delete on each row, a
+  **New connector** button, and an add control on each owner cluster.
+- Sign out, sign in as `viewer@alkira.com`: the Actions column is gone entirely, the create button is
+  absent, the add-owner controls are gone, and the header reads **Viewer**.
+- Click a connector name in either role. The row takes a royal edge down its left side, and only one
+  row is ever marked.
 
 **Automated**
 
@@ -116,9 +119,15 @@ the code is real: random generation, five-minute expiry, three attempts, single 
 npm test
 ```
 
-48 tests. The reducer and the permission model are unit-tested with no React involved; the flow
+53 tests. The reducer and the permission model are unit-tested with no React involved; the flow
 above is covered end-to-end by integration tests driving the real components through the real
 `fetch` path.
+
+The suite is checked by mutation rather than by coverage percentage: eighteen deliberate bugs were
+introduced across the reducer, the permission map, the route guards, session persistence, and the
+role gating in the UI, and every one of them broke a test. That is the evidence that the tests
+assert something. One of them found a real gap, which is now covered: nothing had verified that
+signing out clears the persisted session.
 
 ---
 
@@ -157,6 +166,32 @@ requires a live challenge so `/mfa` is not directly addressable.
 handles a real `401`. Nothing in `src/` knows the backend is fake, so pointing at a real API means
 deleting the mock rather than rewriting a service layer. The same handlers run in Node for tests.
 
+
+### The visual system
+
+The look is a stated brief rather than a default, and it is enforced structurally where it can be:
+
+- **One face.** Cormorant carries the whole interface, not just headings. It is a Garamond revival
+  with a small x-height, so the type scale is set larger than a sans equivalent and interface text
+  runs at weight 600. IBM Plex Mono survives for one job: verification codes and region identifiers,
+  where proportional digits would make a field reflow as you type.
+- **One radius.** Every radius token in `@theme` collapses to the same 3px, so `rounded-sm` and
+  `rounded-3xl` produce identical output. Inconsistency is not available rather than discouraged.
+  Circles are the single exception, reserved for avatars.
+- **One selection device.** An active list item takes a royal edge down its left side, never a
+  filled background. The connector rows and the dev inbox both use it.
+- **Matte throughout.** No gradients, no glass, no blur, no shadows. Separation comes from hairline
+  rules and small tonal steps between three surface tokens.
+- **No motion except loading.** Nothing eases, nothing transitions on hover, nothing animates on
+  arrival. A skeleton pulses and a spinner turns, and that is the entire inventory.
+- **Hierarchy from weight and size.** Grey is used for genuinely secondary text, but it never
+  carries a distinction on its own.
+
+The header is where royal blue stops being an accent: it fills the signed-in shell edge to edge,
+while the unauthenticated shell stays off white. The palette itself marks the security boundary. In
+dark mode the band darkens rather than lightening with the accent, because a full-width band painted
+in the lifted accent would be the brightest object on a near-black page.
+
 ### Assumptions
 
 - No backend, per the brief. Everything server-shaped is mocked at the network boundary.
@@ -185,8 +220,8 @@ deleting the mock rather than rewriting a service layer. The same handlers run i
    chosen for UX because enumeration leaks through signup and password reset anyway, and mitigated
    with per-account rate limiting. For a product where account existence is itself sensitive, the
    generic message is correct and I would flip it.
-6. **Edit is a stub.** The Edit button demonstrates the permission gate; it opens no form. Create
-   and Delete are wired through to the mock API.
+6. **Edit and add-owner are stubs.** Both demonstrate the permission gate and neither opens a form.
+   Create and Delete are wired through to the mock API.
 7. **No password reset flow.** Out of scope, but it is where recovery-path security would need the
    most attention — recovery is usually the weakest link in an auth system.
 8. **The mock runs in production builds too.** `npm run preview` would otherwise have nothing to

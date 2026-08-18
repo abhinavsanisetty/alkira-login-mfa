@@ -242,3 +242,89 @@ describe("role-based access control", () => {
     );
   });
 });
+
+describe("connector selection", () => {
+  // Selection is marked by a left edge rather than a filled row, which is a
+  // purely visual device and untestable here (styles are not loaded). What is
+  // worth asserting is the state the mark is derived from, and that it is
+  // exposed through a real control rather than a click handler on a row.
+  it("selects one connector at a time and toggles it off", async () => {
+    const { user } = renderApp();
+    await signIn(user, "editor@alkira.com");
+    await completeMfa(user);
+
+    const first = screen.getByRole("button", { name: "prod-us-west" });
+    const second = screen.getByRole("button", { name: "prod-eu-central" });
+    expect(first).toHaveAttribute("aria-pressed", "false");
+
+    await user.click(first);
+    expect(first).toHaveAttribute("aria-pressed", "true");
+
+    await user.click(second);
+    expect(second).toHaveAttribute("aria-pressed", "true");
+    expect(first).toHaveAttribute("aria-pressed", "false");
+
+    await user.click(second);
+    expect(second).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("offers the add owner control only to a role that may edit", async () => {
+    const { user, unmount } = renderApp();
+    await signIn(user, "editor@alkira.com");
+    await completeMfa(user);
+    expect(screen.getAllByRole("button", { name: /add owner to/i }).length).toBeGreaterThan(0);
+
+    await user.click(screen.getByRole("button", { name: /sign out/i }));
+    unmount();
+
+    const second = renderApp();
+    await signIn(second.user, "viewer@alkira.com");
+    await completeMfa(second.user);
+    expect(screen.queryByRole("button", { name: /add owner to/i })).not.toBeInTheDocument();
+  });
+});
+
+describe("sign up", () => {
+  async function gotoSignUp(user: UserEvent) {
+    await user.click(screen.getByRole("link", { name: /sign up/i }));
+    await screen.findByRole("heading", { name: /create an account/i });
+  }
+
+  it("reports every invalid field rather than submitting", async () => {
+    const { user } = renderApp();
+    await gotoSignUp(user);
+
+    await user.click(screen.getByRole("button", { name: /create account/i }));
+
+    expect(await screen.findByText(/enter a valid email address/i)).toBeInTheDocument();
+    expect(screen.queryByText(/validation passed/i)).not.toBeInTheDocument();
+  });
+
+  it("rejects a confirmation that does not match", async () => {
+    const { user } = renderApp();
+    await gotoSignUp(user);
+
+    await user.type(screen.getByLabelText(/name/i), "Ada Lovelace");
+    await user.type(screen.getByLabelText(/email/i), "ada@alkira.com");
+    await user.type(screen.getByLabelText(/^password$/i), "Password123!");
+    await user.type(screen.getByLabelText(/confirm password/i), "Password456!");
+    await user.click(screen.getByRole("button", { name: /create account/i }));
+
+    expect(await screen.findByText(/passwords do not match/i)).toBeInTheDocument();
+  });
+
+  it("confirms validation passed without claiming an account was created", async () => {
+    const { user } = renderApp();
+    await gotoSignUp(user);
+
+    await user.type(screen.getByLabelText(/name/i), "Ada Lovelace");
+    await user.type(screen.getByLabelText(/email/i), "ada@alkira.com");
+    await user.type(screen.getByLabelText(/^password$/i), "Password123!");
+    await user.type(screen.getByLabelText(/confirm password/i), "Password123!");
+    await user.click(screen.getByRole("button", { name: /create account/i }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(/validation passed/i);
+    expect(alert).toHaveTextContent(/no account was created/i);
+  });
+});

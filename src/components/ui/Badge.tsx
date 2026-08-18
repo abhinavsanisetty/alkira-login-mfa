@@ -3,18 +3,32 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/cn";
 
+/**
+ * A small status mark: tinted ground, darker text of the same hue, and the same
+ * 3px corner as every other element.
+ *
+ * Explicitly not a pill. A fully rounded badge reads as a tag you can dismiss,
+ * and it would be the one shape in the interface that breaks the shared radius.
+ * The only round things here are avatars, which are round because they stand for
+ * people.
+ *
+ * Each tone pairs a *-soft ground with its matching solid as the text colour, so
+ * the two always come from the same hue and the pairing cannot drift. Small
+ * caps with a little tracking, because Cormorant's lowercase at this size loses
+ * its footing and the uppercase forms stay crisp.
+ */
 const badge = cva(
   [
     "inline-flex items-center gap-1.5",
     "rounded-sm border px-2 py-0.5",
-    "text-2xs font-medium uppercase tracking-[0.07em]",
+    "text-xs font-bold uppercase tracking-[0.08em]",
     "whitespace-nowrap",
   ],
   {
     variants: {
       tone: {
-        neutral: "border-rule bg-sunk text-muted",
-        royal: "border-royal/35 bg-royal-soft text-royal",
+        neutral: "border-rule bg-gray-soft text-gray",
+        royal: "border-royal-line bg-royal-soft text-royal",
         ok: "border-ok/35 bg-ok-soft text-ok",
         warn: "border-warn/35 bg-warn-soft text-warn",
         danger: "border-danger/35 bg-danger-soft text-danger",
@@ -26,9 +40,10 @@ const badge = cva(
 
 export interface BadgeProps extends VariantProps<typeof badge> {
   children: ReactNode;
-  /** Draws a small filled dot before the label. Used for connector status,
-   *  where the dot gives a shape to scan for down a column rather than forcing
-   *  the eye to read every word. */
+  /** Draws a small square mark before the label. Used for connector status,
+   *  where it gives the eye a shape to scan for down a column instead of
+   *  forcing it to read every word. Square, not a dot, so the badge has no
+   *  circle in it. */
   dot?: boolean;
   className?: string;
 }
@@ -39,7 +54,7 @@ export function Badge({ tone, dot = false, className, children }: BadgeProps) {
       {dot ? (
         // Purely decorative. The label beside it already carries the meaning,
         // so this is hidden rather than announced twice.
-        <span aria-hidden="true" className="size-1.5 rounded-sm bg-current" />
+        <span aria-hidden="true" className="size-1.5 rounded-[1px] bg-current" />
       ) : null}
       {children}
     </span>

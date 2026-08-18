@@ -39,12 +39,51 @@ export interface Connector {
   type: ConnectorType;
   region: string;
   status: ConnectorStatus;
+  /** Display names only. A real API would return ids the client resolves
+   *  separately; names are inlined here because there is no directory to
+   *  resolve against. */
+  owners: readonly string[];
 }
 
 export const SEED_CONNECTORS: readonly Connector[] = [
-  { id: "cx_1", name: "prod-us-west", type: "AWS", region: "us-west-2", status: "connected" },
-  { id: "cx_2", name: "prod-eu-central", type: "Azure", region: "westeurope", status: "connected" },
-  { id: "cx_3", name: "analytics-warehouse", type: "GCP", region: "us-central1", status: "degraded" },
-  { id: "cx_4", name: "staging-us-east", type: "AWS", region: "us-east-1", status: "provisioning" },
-  { id: "cx_5", name: "partner-transit", type: "Azure", region: "eastus2", status: "connected" },
+  {
+    id: "cx_1",
+    name: "prod-us-west",
+    type: "AWS",
+    region: "us-west-2",
+    status: "connected",
+    owners: ["Adah Admin", "Eddie Editor", "Priya Nair", "Tom Okafor"],
+  },
+  {
+    id: "cx_2",
+    name: "prod-eu-central",
+    type: "Azure",
+    region: "westeurope",
+    status: "connected",
+    owners: ["Eddie Editor", "Lena Brandt"],
+  },
+  {
+    id: "cx_3",
+    name: "analytics-warehouse",
+    type: "GCP",
+    region: "us-central1",
+    status: "degraded",
+    owners: ["Priya Nair"],
+  },
+  {
+    id: "cx_4",
+    name: "staging-us-east",
+    type: "AWS",
+    region: "us-east-1",
+    status: "provisioning",
+    owners: ["Eddie Editor", "Tom Okafor", "Adah Admin"],
+  },
+  {
+    id: "cx_5",
+    name: "partner-transit",
+    type: "Azure",
+    region: "eastus2",
+    status: "connected",
+    owners: ["Lena Brandt", "Adah Admin"],
+  },
 ];

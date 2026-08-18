@@ -4,6 +4,12 @@
    Every colour, radius, and type size in the application resolves through this
    file. Feature code never writes a hex value, a px radius, or a raw font size.
 
+   The palette is off white, royal blue, and a medium neutral grey, finished
+   matte. Flat pigment, no gloss, no glass, no blur. Depth comes from hairline
+   rules and small tonal steps between surfaces, never from a gradient or a
+   shadow. Royal blue is a primary here, not a garnish: it fills the application
+   header outright and carries every action, focus ring, and selection mark.
+
    Structure, and why it is in this order:
 
      1. :root defines the complete LIGHT palette as plain CSS variables.
@@ -16,29 +22,36 @@
    into the utility at build time, which freezes the light palette and makes the
    theme toggle a no-op. With it, bg-paper compiles to var(--paper) and follows
    whatever the cascade currently says.
-
-   The palette is matte: flat pigment on uncoated paper. No gradients, no glow,
-   no glossy shadows. Depth comes from hairline borders and small tonal steps
-   between surfaces, the way ink sits on a printed page.
 --------------------------------------------------------------------------- */
 
 @import "tailwindcss";
 
-/* Cormorant carries the identity: page titles, the auth headline, large
-   numerals. IBM Plex Sans does the work: labels, buttons, table body. Plex Mono
-   handles anything tabular or machine-shaped, and shares a skeleton with Plex
-   Sans so the two never look like strangers.
+/* Cormorant is the primary face and runs through the entire interface: page
+   titles, labels, buttons, table body, badges, the lot. It is a Garamond
+   revival, so it sets small on the em and thin at 400. Two adjustments carry it
+   into interface use rather than fighting it:
+
+     - every size in the scale is set larger than a sans equivalent would be
+     - interface text runs at 600, reserving 500 for long-form and 300 for the
+       few places a lighter voice is wanted
+
+   The full 300 to 700 range is imported because the typographic hierarchy is
+   built from weight and size rather than colour, which means the weights have
+   to actually be available. Anything less and the browser synthesises a fake
+   bold, which on a serif this fine looks like a rendering fault.
+
+   IBM Plex Mono survives for one job: verification codes, region identifiers,
+   and anything else that has to hold a column. Cormorant has no tabular figures
+   and proportional digits make a six-digit code reflow as it is typed.
 
    Self-hosted through @fontsource rather than a CDN link, so there is no
    third-party request, no layout shift from a late-arriving face, and no silent
-   fallback if the network is unavailable. Only the weights actually used are
-   imported. */
+   fallback if the network is unavailable. */
+@import "@fontsource/cormorant/300.css";
 @import "@fontsource/cormorant/400.css";
 @import "@fontsource/cormorant/500.css";
 @import "@fontsource/cormorant/600.css";
-@import "@fontsource/ibm-plex-sans/400.css";
-@import "@fontsource/ibm-plex-sans/500.css";
-@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/cormorant/700.css";
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/500.css";
 
@@ -68,45 +81,65 @@
 :root {
   color-scheme: light;
 
-  /* Surfaces, lightest to deepest. Three steps is enough to build any layout
-     without shadows: page, raised, inset. */
-  --paper: #ededE8;
-  --surface: #f7f7f3;
-  --surface-sunk: #e3e3dd;
+  /* Off white, in three steps. Neutral rather than cream: a warm paper would
+     pull the palette toward the beige-and-terracotta look and read as soft.
+     Three steps is enough to build any layout without shadows, which is the
+     whole point of having them. */
+  --paper: #f1f1ee;
+  --surface: #fafaf8;
+  --surface-sunk: #e6e6e1;
 
-  /* Text. Near-black with a cool cast rather than pure #000, which reads as
-     harsh against warm paper. */
-  --ink: #22252a;
-  --ink-muted: #575b62;
-  --gray: #74787f;
+  /* Text. Near-black with a cool cast rather than pure #000, which reads harsh
+     against off white. */
+  --ink: #1b1e24;
+  --ink-muted: #4e535c;
+
+  /* The secondary supporting colour: a true medium grey, no warm cast. Carries
+     labels, metadata, and every piece of text one level below the content. */
+  --gray: #767b84;
+  --gray-soft: #e8e8e5;
 
   /* Hairlines. The main structural device, standing in for shadows. */
-  --rule: #d5d5ce;
-  --rule-strong: #b9b9b1;
+  --rule: #d9d9d3;
+  --rule-strong: #bcbcb5;
 
-  /* Royal blue. The single accent: actions, links, focus, selection.
-     Desaturated just far enough to sit flat on paper instead of glowing. */
-  --royal: #2c4a9a;
-  --royal-hover: #223c80;
-  --royal-soft: #dee3f0;
-  --royal-ink: #ffffff;
+  /* Royal blue. Rich and saturated enough to hold a solid header at full
+     strength, stopping short of the electric #4169E1 that reads as a link
+     colour rather than a brand. */
+  --royal: #23408f;
+  --royal-hover: #1a3072;
+  --royal-soft: #e2e6f2;
+  --royal-line: #b3bedd;
+  --royal-ink: #f7f8fb;
 
-  /* Status. Muted deliberately so nothing in the table reads as neon. */
-  --ok: #4a6e52;
-  --ok-soft: #dce4dc;
-  --warn: #8a6a2e;
-  --warn-soft: #ebe3d2;
-  --danger: #93463c;
-  --danger-soft: #eddbd7;
+  /* The application header fill.
 
-  --focus: #2c4a9a;
+     Split from --royal because the two have opposite jobs across themes. The
+     accent has to stay legible *as text and small marks*, so in dark mode it is
+     lifted to a pale periwinkle. A full-width band painted that colour would
+     then become the brightest object on a near-black page, which is exactly
+     backwards. The band therefore darkens where the accent lightens. */
+  --band: #23408f;
+  --band-ink: #f7f8fb;
+  --band-line: #35509b;
+
+  /* Status. Each is a tinted ground with a darker text of the same hue, per the
+     badge rule. Muted deliberately so nothing in a list reads as neon. */
+  --ok: #3f6549;
+  --ok-soft: #dfe7e0;
+  --warn: #7f6026;
+  --warn-soft: #ece4d1;
+  --danger: #8d3f36;
+  --danger-soft: #eed9d5;
+
+  --focus: #23408f;
 }
 
 /* --------------------------------------------------------------------------
    Dark palette
 
    Not an inversion. Royal blue is lifted well above its light value, because
-   #2c4a9a on a dark ground is nearly unreadable, and the greys are re-picked
+   #23408f on a dark ground is nearly unreadable, and the greys are re-picked
    rather than flipped so the tonal steps stay even. Still matte: no glow, no
    saturation spike.
    -------------------------------------------------------------------------- */
@@ -115,60 +148,74 @@
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --paper: #15171a;
-    --surface: #1c1f23;
-    --surface-sunk: #0f1113;
+    --paper: #14161a;
+    --surface: #1b1e23;
+    --surface-sunk: #0e1013;
 
-    --ink: #e7e5df;
-    --ink-muted: #a3a6ac;
-    --gray: #8b8f96;
+    --ink: #e8e7e2;
+    --ink-muted: #a8abb1;
 
-    --rule: #2c3036;
-    --rule-strong: #3e434b;
+    --gray: #8d919a;
+    --gray-soft: #23262c;
 
-    --royal: #7c97db;
-    --royal-hover: #93aae6;
-    --royal-soft: #202638;
-    --royal-ink: #12151c;
+    --rule: #2b2f36;
+    --rule-strong: #3d424a;
 
-    --ok: #7fa487;
-    --ok-soft: #1b2620;
-    --warn: #c0a063;
-    --warn-soft: #2a2418;
-    --danger: #c4796d;
-    --danger-soft: #2b1d1a;
+    --royal: #7d97d8;
+    --royal-hover: #93aae4;
+    --royal-soft: #1e2434;
+    --royal-line: #333c53;
+    --royal-ink: #10141c;
 
-    --focus: #7c97db;
+    --band: #1a2440;
+    --band-ink: #dde3f2;
+    --band-line: #26314f;
+
+    --ok: #82a68a;
+    --ok-soft: #1a251f;
+    --warn: #c0a165;
+    --warn-soft: #292317;
+    --danger: #c67c70;
+    --danger-soft: #2a1c19;
+
+    --focus: #7d97d8;
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --paper: #15171a;
-  --surface: #1c1f23;
-  --surface-sunk: #0f1113;
+  --paper: #14161a;
+  --surface: #1b1e23;
+  --surface-sunk: #0e1013;
 
-  --ink: #e7e5df;
-  --ink-muted: #a3a6ac;
-  --gray: #8b8f96;
+  --ink: #e8e7e2;
+  --ink-muted: #a8abb1;
 
-  --rule: #2c3036;
-  --rule-strong: #3e434b;
+  --gray: #8d919a;
+  --gray-soft: #23262c;
 
-  --royal: #7c97db;
-  --royal-hover: #93aae6;
-  --royal-soft: #202638;
-  --royal-ink: #12151c;
+  --rule: #2b2f36;
+  --rule-strong: #3d424a;
 
-  --ok: #7fa487;
-  --ok-soft: #1b2620;
-  --warn: #c0a063;
-  --warn-soft: #2a2418;
-  --danger: #c4796d;
-  --danger-soft: #2b1d1a;
+  --royal: #7d97d8;
+  --royal-hover: #93aae4;
+  --royal-soft: #1e2434;
+  --royal-line: #333c53;
+  --royal-ink: #10141c;
 
-  --focus: #7c97db;
+  --band: #1a2440;
+  --band-ink: #dde3f2;
+  --band-line: #26314f;
+
+  --ok: #82a68a;
+  --ok-soft: #1a251f;
+  --warn: #c0a165;
+  --warn-soft: #292317;
+  --danger: #c67c70;
+  --danger-soft: #2a1c19;
+
+  --focus: #7d97d8;
 }
 
 /* --------------------------------------------------------------------------
@@ -183,6 +230,7 @@
   --color-ink: var(--ink);
   --color-muted: var(--ink-muted);
   --color-gray: var(--gray);
+  --color-gray-soft: var(--gray-soft);
 
   --color-rule: var(--rule);
   --color-rule-strong: var(--rule-strong);
@@ -190,7 +238,12 @@
   --color-royal: var(--royal);
   --color-royal-hover: var(--royal-hover);
   --color-royal-soft: var(--royal-soft);
+  --color-royal-line: var(--royal-line);
   --color-royal-ink: var(--royal-ink);
+
+  --color-band: var(--band);
+  --color-band-ink: var(--band-ink);
+  --color-band-line: var(--band-line);
 
   --color-ok: var(--ok);
   --color-ok-soft: var(--ok-soft);
@@ -199,8 +252,8 @@
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
 
-  --font-display: "Cormorant", ui-serif, Georgia, "Times New Roman", serif;
-  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Cormorant", ui-serif, Garamond, Georgia, serif;
+  --font-sans: "Cormorant", ui-serif, Garamond, Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
 }
 
@@ -208,10 +261,14 @@
   /* Every radius token collapses to the same 3px.
 
      This is deliberate and structural rather than a matter of discipline. The
-     brief was "very slightly rounded, consistent border radius everywhere", so
-     rather than trusting everyone to reach for the same utility, the scale
-     itself has been flattened. rounded-sm, rounded-lg, and rounded-3xl now all
-     produce 3px. Inconsistency is not available. */
+     brief was one consistent, very slightly rounded corner on everything:
+     buttons, inputs, cards, badges, avatars excepted. Rather than trusting
+     everyone to reach for the same utility, the scale itself has been
+     flattened. rounded-sm, rounded-lg, and rounded-3xl now all produce 3px.
+     Inconsistency is not available.
+
+     rounded-full is untouched, and is used in exactly one place: avatars, which
+     the brief asks for as circles. */
   --radius-xs: 3px;
   --radius-sm: 3px;
   --radius-md: 3px;
@@ -221,32 +278,35 @@
   --radius-3xl: 3px;
   --radius-4xl: 3px;
 
-  /* Type scale. Tight and modest, because this is a dense tool rather than a
-     landing page. Cormorant runs small on the em, so display sizes are set
-     larger than the equivalent sans size would be. */
-  --text-2xs: 0.6875rem;
-  --text-2xs--line-height: 1rem;
-  --text-xs: 0.75rem;
-  --text-xs--line-height: 1.125rem;
-  --text-sm: 0.8125rem;
-  --text-sm--line-height: 1.25rem;
-  --text-base: 0.875rem;
-  --text-base--line-height: 1.375rem;
-  --text-md: 0.9375rem;
-  --text-md--line-height: 1.5rem;
-  --text-lg: 1.0625rem;
-  --text-lg--line-height: 1.625rem;
-  --text-xl: 1.5rem;
-  --text-xl--line-height: 1.875rem;
-  --text-2xl: 2rem;
-  --text-2xl--line-height: 2.25rem;
-  --text-3xl: 2.75rem;
-  --text-3xl--line-height: 3rem;
+  /* Type scale, set for Cormorant rather than for a sans.
 
-  /* Motion is limited to two things: telling you something is loading, and
-     telling you something arrived. Nothing moves on hover. */
+     A Garamond revival has a small x-height, so every step here is roughly two
+     points larger than the equivalent sans size would be. Anything below
+     --text-sm is illegible in this face regardless of weight, which is why the
+     scale simply has no smaller step: the constraint is expressed by absence,
+     the same way the radius scale is. */
+  --text-xs: 0.875rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.3125rem;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.5rem;
+  --text-md: 1.1875rem;
+  --text-md--line-height: 1.625rem;
+  --text-lg: 1.375rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.75rem;
+  --text-xl--line-height: 2.125rem;
+  --text-2xl: 2.375rem;
+  --text-2xl--line-height: 2.625rem;
+  --text-3xl: 3.25rem;
+  --text-3xl--line-height: 3.5rem;
+
+  /* Motion exists for exactly one reason: telling you something is loading.
+     Nothing moves on hover, nothing eases between states, nothing animates on
+     arrival. A skeleton pulses and a spinner turns, and that is the complete
+     inventory. */
   --animate-pulse-flat: pulse-flat 1.6s ease-in-out infinite;
-  --animate-arrive: arrive 240ms ease-out both;
   --animate-spin-flat: spin-flat 700ms linear infinite;
 }
 
@@ -259,19 +319,6 @@
   }
   50% {
     opacity: 0.45;
-  }
-}
-
-/* Used once, when a message lands in the mock inbox. A small rise plus a fade
-   is what makes a stacked card read as "arrived" instead of "was always here". */
-@keyframes arrive {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 
@@ -302,16 +349,21 @@
     font-family: var(--font-sans);
     font-size: var(--text-base);
     line-height: var(--text-base--line-height);
+    font-weight: 600;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Headings are set in the same face as everything else, so they separate
+     themselves by weight and size alone, which is what the hierarchy rule asks
+     for. At display sizes Cormorant has enough stroke contrast to hold its own
+     at 600 without going to 700. */
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
-    font-weight: 500;
-    letter-spacing: 0.01em;
+    font-weight: 600;
+    letter-spacing: 0;
     text-wrap: balance;
   }
 
@@ -329,9 +381,8 @@
     color: var(--ink);
   }
 
-  /* Digits that sit in columns must line up. Applies to the connector table,
-     timers, and attempt counters. */
-  table,
+  /* Digits that sit in columns must line up. Applies to the connector list,
+     codes, and attempt counters. */
   time,
   [data-numeric] {
     font-variant-numeric: tabular-nums;
