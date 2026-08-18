@@ -198,9 +198,10 @@
   --radius-3xl: 3px;
   --radius-4xl: 3px;
 
-  /* Interface steps (2xs to lg) are Plex Sans; display steps (xl to 3xl) are
-     Cormorant. The ranges do not overlap, so the two faces never appear at the
-     same size and never compete. */
+  /* Plex Sans never goes above --text-base and Cormorant never drops below
+     --text-lg, so the two faces never appear at the same size and never
+     compete. lg is the shared step: Cormorant takes it for card titles and
+     connector names, Mono for the inbox code, Plex Sans never. */
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1rem;
   --text-xs: 0.75rem;

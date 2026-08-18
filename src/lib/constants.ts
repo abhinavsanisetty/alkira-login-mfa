@@ -14,8 +14,8 @@ export const OTP_TTL_MS = 5 * 60 * 1000;
 /** Wrong codes before the challenge dies. Bounds brute force at 3 in 10^6. */
 export const OTP_MAX_ATTEMPTS = 3;
 
-/* Login throttling: the mitigation for the enumeration trade-off in
-   DECISIONS.md §14. "No account with that email" is only cheap to exploit if an
+/* Login throttling: the mitigation for the enumeration trade-off recorded in
+   the README. "No account with that email" is only cheap to exploit if an
    attacker can probe quickly, so probing is made slow. */
 
 /** Failed attempts per email address before the endpoint starts refusing. */

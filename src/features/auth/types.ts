@@ -32,7 +32,7 @@ export interface Challenge {
 /**
  * Each state carries only the data valid in that state. `user` does not exist
  * before MFA completes, so reading a role from a half-authenticated state is a
- * compile error rather than a code review finding. See DECISIONS.md §5.
+ * compile error rather than a code review finding.
  */
 export type AuthState =
   | { status: "anonymous"; error?: AuthError }

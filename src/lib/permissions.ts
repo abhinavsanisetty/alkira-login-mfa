@@ -3,7 +3,7 @@
  * is one testable truth table and adding a role is an edit to this object.
  *
  * Client-side only: this decides what to *show*. A real server re-evaluates the
- * same policy on every mutation. See DECISIONS.md §9.
+ * same policy on every mutation.
  */
 export const PERMISSIONS = {
   viewer: ["connector:view"],

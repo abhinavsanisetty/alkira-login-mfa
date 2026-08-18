@@ -7,8 +7,7 @@ import { inbox } from "@/mocks/inbox";
  * A stand-in for the channel a real code would arrive on, making the
  * out-of-band boundary visible rather than asserted: the code lands somewhere
  * other than the form, and a resend visibly supersedes the previous one.
- * Swapping in a real mailer would not touch generation or verification. See
- * DECISIONS.md §8.
+ * Swapping in a real mailer would not touch generation or verification.
  *
  * The live code takes the same royal left edge every other active list item
  * uses. The dashed panel border is the only dashed line in the interface, and

@@ -9,7 +9,7 @@ import { AuthProvider } from "@/features/auth/AuthProvider";
 import { inbox } from "@/mocks/inbox";
 
 /**
- * Integration coverage for the flow the brief describes. These drive the real
+ * Integration coverage for the whole login and MFA flow. These drive the real
  * components through the real fetch path — MSW answers in Node with the same
  * handlers the browser uses — so what is exercised here is what ships.
  *

@@ -10,9 +10,8 @@ import { Icon } from "@/components/ui/Icon";
 import { TextField } from "@/components/ui/TextField";
 import { signUpSchema, type SignUpInput } from "@/lib/schemas";
 
-/** Scope is exactly what the brief asked for: a separate screen with a real,
- *  validated form. Submitting says plainly that registration is not implemented
- *  rather than faking success. See DECISIONS.md §16. */
+/** A separate screen with a real, validated form. Submitting says plainly that
+ *  registration is not implemented rather than faking success. */
 export function SignUpScreen() {
   const [submitted, setSubmitted] = useState(false);
   const {

@@ -10,8 +10,8 @@ import { useAuth, useCurrentUser } from "@/features/auth";
  * the protected side of the application at a glance.
  *
  * The role is not decoration: actions the current role cannot perform are
- * hidden, and hiding without stating the role reads as a bug. See DECISIONS.md
- * §10. It is drawn as plain text here rather than as a Badge, whose *-soft
+ * hidden, and hiding without stating the role reads as a bug. It is drawn as
+ * plain text here rather than as a Badge, whose *-soft
  * grounds are built to sit on paper and turn muddy on a saturated band.
  */
 export function AppLayout() {

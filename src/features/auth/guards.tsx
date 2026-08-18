@@ -4,7 +4,7 @@ import { useAuth } from "./useAuth";
 
 /**
  * Layout routes, so protection is structural: anything nested inside a guard is
- * protected by construction. See DECISIONS.md §11.
+ * protected by construction.
  *
  * These are UX, not security — a real API returns 401 regardless of what the
  * client renders. They also carry the routing between auth stages, which keeps

@@ -4,7 +4,7 @@ import { OTP_LENGTH } from "@/lib/constants";
 
 /** One schema per form, used by the form for feedback and by the mock API to
  *  parse the request body. Client and server cannot disagree about what a valid
- *  payload is. See DECISIONS.md §4. */
+ *  payload is. */
 
 export const loginSchema = z.object({
   email: z.email("Enter a valid email address"),

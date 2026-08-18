@@ -3,7 +3,7 @@
  *
  * MSW handlers run in the page, not inside the service worker, so the "server"
  * can publish here and the MFA screen can subscribe. Swapping this for a real
- * mailer would not touch code generation or verification. See DECISIONS.md §8.
+ * mailer would not touch code generation or verification.
  */
 
 export interface InboxMessage {

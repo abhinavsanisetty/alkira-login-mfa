@@ -20,7 +20,7 @@ const button = cva(
     "select-none whitespace-nowrap",
     // Disabled here always means "busy" or "nothing to submit yet", never
     // "you lack permission" — that is expressed by not rendering the control
-    // at all. See DECISIONS.md §10.
+    // at all.
     "disabled:cursor-not-allowed",
   ],
   {

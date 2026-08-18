@@ -18,7 +18,7 @@ export function ConnectorsScreen() {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   // Derived, never stored. A stored `canEdit` would go stale the moment the
-  // role changed; this cannot. See DECISIONS.md §9.
+  // role changed; this cannot.
   const canCreate = can(user, "connector:create");
   const canEdit = can(user, "connector:edit");
   const canDelete = can(user, "connector:delete");
